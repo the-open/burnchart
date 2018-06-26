@@ -20,10 +20,10 @@ export default class MilestonePage extends Page {
   render() {
     let content;
     if (!this.state.app.system.loading) {
-      let projects = this.state.projects;
+      const { repos } = this.state;
       // Create the all milestones payload.
       let data;
-      _.find(projects.list, (obj) => {
+      _.find(repos.list, obj => {
         if (obj.owner == this.props.owner && obj.name == this.props.name) {
           if (obj.milestones) {
             let created_at = 'Z',
@@ -36,7 +36,7 @@ export default class MilestonePage extends Page {
             _(obj.milestones).filter((m) => !m.stats.isEmpty).map(m => {
               if (m.created_at < created_at) created_at = m.created_at;
               if (m.due_on > due_on) due_on = m.due_on;
-              _.each([ 'closed', 'open' ], (k) => {
+              _.each([ 'closed', 'open' ], k => {
                 issues[k].list = issues[k].list.concat(m.issues[k].list);
                 issues[k].size += m.issues[k].size;
               });
@@ -58,11 +58,11 @@ export default class MilestonePage extends Page {
         content = (
           <div>
             <Chart data={data} style={{ 'marginBottom': '40px' }} />
-            <Milestones projects={projects} project={this.props} />
+            <Milestones repos={repos} repo={this.props} />
           </div>
         );
       } else {
-        content = <Milestones projects={projects} project={this.props} />
+        content = <Milestones repos={repos} repo={this.props} />
       }
     }
 

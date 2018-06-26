@@ -16,7 +16,7 @@ export default class Page extends React.Component {
 
   // Get the POJO of the store.
   _getData(store) {
-    let obj = {};
+    const obj = {};
     if (store) {
       obj[store] = stores[store].get();
     } else {

@@ -5,8 +5,8 @@ import moment from 'moment';
 import stats from '../src/js/modules/stats.js';
 
 export default {
-  'stats - is milestone empty, on time and overdue? no due date': (done) => {
-    let milestone = {
+  'stats - is milestone empty, on time and overdue? no due date': done => {
+    const milestone = {
       'issues': {
         'open': {
           'size': 0
@@ -17,7 +17,7 @@ export default {
       }
     };
 
-    let { isEmpty, isOverdue, isOnTime } = stats(milestone);
+    const { isEmpty, isOverdue, isOnTime } = stats(milestone);
 
     assert.isTrue(isEmpty);
     assert.isFalse(isOverdue);
@@ -26,8 +26,8 @@ export default {
     done();
   },
 
-  'stats - has no progress been made?': (done) => {
-    let milestone = {
+  'stats - has no progress been made?': done => {
+    const milestone = {
       'issues': {
         'open': {
           'size': 1
@@ -43,8 +43,8 @@ export default {
     done();
   },
 
-  'stats - is milestone done?': (done) => {
-    let milestone = {
+  'stats - is milestone done?': done => {
+    const milestone = {
       'issues': {
         'open': {
           'size': 0
@@ -55,14 +55,14 @@ export default {
       }
     };
 
-    let { isDone } = stats(milestone);
+    const { isDone } = stats(milestone);
     assert.isTrue(isDone);
 
     done();
   },
 
-  'stats - is milestone overdue? has due date, yes': (done) => {
-    let milestone = {
+  'stats - is milestone overdue? has due date, yes': done => {
+    const milestone = {
       'created_at': '2011-04-02T00:00:00.000Z',
       'due_on': '2011-04-03T00:00:00.000Z',
       'issues': {
@@ -75,15 +75,15 @@ export default {
       }
     };
 
-    let { isOverdue } = stats(milestone);
+    const { isOverdue } = stats(milestone);
     assert.isTrue(isOverdue);
 
     done();
   },
 
-  'stats - is milestone on time? has due date, yes': (done) => {
-    let now = moment.utc();
-    let milestone = {
+  'stats - is milestone on time? has due date, yes': done => {
+    const now = moment.utc();
+    const milestone = {
       'created_at': now.subtract(1, 'week').toISOString(),
       'due_on': now.add(1, 'month').toISOString(),
       'issues': {
@@ -96,15 +96,15 @@ export default {
       }
     };
 
-    let { isOnTime } = stats(milestone);
+    const { isOnTime } = stats(milestone);
     assert.isTrue(isOnTime);
 
     done();
   },
 
-  'stats - is milestone on time? has due date, no': (done) => {
-    let now = moment.utc();
-    let milestone = {
+  'stats - is milestone on time? has due date, no': done => {
+    const now = moment.utc();
+    const milestone = {
       'created_at': now.subtract(2, 'week').toISOString(),
       'due_on': now.add(1, 'day').toISOString(),
       'issues': {
@@ -117,15 +117,15 @@ export default {
       }
     };
 
-    let { isOnTime } = stats(milestone);
+    const { isOnTime } = stats(milestone);
     assert.isFalse(isOnTime);
 
     done();
   },
 
-  'stats - is milestone on time? has due date, all issues closed': (done) => {
-    let now = moment.utc();
-    let milestone = {
+  'stats - is milestone on time? has due date, all issues closed': done => {
+    const now = moment.utc();
+    const milestone = {
       'created_at': now.subtract(2, 'week').toISOString(),
       'due_on': now.subtract(1, 'week').toISOString(),
       'issues': {
@@ -138,19 +138,19 @@ export default {
       }
     };
 
-    let { isOnTime } = stats(milestone);
+    const { isOnTime } = stats(milestone);
     assert.isTrue(isOnTime);
 
     done();
   },
 
   // Make sure milestone hasn't been created after closing an issue; #100.
-  'stats - milestone created_at': (done) => {
-    let now = moment.utc();
-    let a = now.clone().subtract(1, 'week').toISOString(),
+  'stats - milestone created_at': done => {
+    const now = moment.utc();
+    const a = now.clone().subtract(1, 'week').toISOString(),
         b = now.clone().subtract(1, 'day').toISOString()
 
-    let milestone = {
+    const milestone = {
       'created_at': b,
       'issues': {
         'open': {

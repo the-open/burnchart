@@ -24,14 +24,14 @@ export default class Header extends React.Component {
     actions.emit('user.signout');
   }
 
-  // Add example projects.
+  // Add example repos.
   _onDemo() {
-    actions.emit('projects.demo');
+    actions.emit('repos.demo');
   }
 
   render() {
     // From app store.
-    let props = this.props.app;
+    const props = this.props.app;
 
     // Sign-in/out.
     let user;
@@ -54,7 +54,7 @@ export default class Header extends React.Component {
     }
 
     // Switch loading icon with app icon.
-    let icon = [ 'fire', 'spinner' ][ +props.system.loading ];
+    const icon = [ 'fire', 'spinner' ][ +props.system.loading ];
 
     return (
       <div>
@@ -62,14 +62,14 @@ export default class Header extends React.Component {
         <div id="head">
           {user}
 
-          <Link route={{ 'to': 'projects' }} id="icon">
+          <Link route={{ 'to': 'repos' }} id="icon">
             <Icon name={icon} />
           </Link>
 
           <ul>
             <li>
-              <Link route={{ 'to': 'addProject' }}>
-                <Icon name="plus" /> Add a Project
+              <Link route={{ 'to': 'addRepo' }}>
+                <Icon name="plus" /> Add a Repo
               </Link>
             </li>
             <li>

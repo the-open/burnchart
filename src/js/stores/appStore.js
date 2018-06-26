@@ -57,7 +57,7 @@ class AppStore extends Store {
 
   // Sign-out a user.
   onUserSignout() {
-    actions.emit('user.ready', {}); // projectsStore references user
+    actions.emit('user.ready', {}); // reposStore references user
     client.auth().signOut();
   }
 

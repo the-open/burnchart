@@ -7,7 +7,7 @@ _.mixin({
     }
 
     return _.map(source, (item) => {
-      let obj = {};
+      const obj = {};
       for (let key of keys) {
         obj[key] = item[key];
       }

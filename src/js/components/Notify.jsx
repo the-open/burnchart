@@ -30,7 +30,7 @@ class Notify extends React.Component {
   }
 
   render() {
-    let { text, system, type, icon, ttl } = this.props;
+    const { text, system, type, icon } = this.props;
 
     // No text = no message.
     if (!text) return false;
@@ -42,15 +42,15 @@ class Notify extends React.Component {
           <p>{text}</p>
         </div>
       );
-    } else {
-      return (
-        <div id="notify" className={type}>
-          <span className="close" onClick={this._onClose} />
-          <Icon name={icon} />
-          <p>{text}</p>
-        </div>
-      );
     }
+    
+    return (
+      <div id="notify" className={type}>
+        <span className="close" onClick={this._onClose} />
+        <Icon name={icon} />
+        <p>{text}</p>
+      </div>
+    );
   }
 
 }

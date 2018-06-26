@@ -3,10 +3,12 @@ import { RouterMixin, navigate } from 'react-mini-router';
 import _ from 'lodash';
 import './modules/lodash.js';
 
-import ProjectsPage from './components/pages/ProjectsPage.jsx';
+import ReposPage from './components/pages/ReposPage.jsx';
+import AddRepoPage from './components/pages/AddRepoPage.jsx';
 import MilestonesPage from './components/pages/MilestonesPage.jsx';
 import ChartPage from './components/pages/ChartPage.jsx';
-import AddProjectPage from './components/pages/AddProjectPage.jsx';
+import ProjectsPage from './components/pages/ProjectsPage.jsx';
+import ProjectChartPage from './components/pages/ProjectChartPage.jsx';
 import NotFoundPage from './components/pages/NotFoundPage.jsx';
 
 import actions from './actions/appActions.js';
@@ -17,24 +19,22 @@ import appStore from './stores/appStore.js';
 delete RouterMixin.handleClick;
 
 // Values are function names below.
-let routes = {
-  '/': 'projects',
-  '/new/project': 'addProject',
+const routes = {
+  '/': 'repos',
+  '/new/repo': 'addRepo',
   '/:owner/:name': 'milestones',
   '/:owner/:name/:milestone': 'chart',
-  '/:owner/:name/projects': 'githubProjects',
-  '/:owner/projects': 'orgProjects',
-  '/:owner/project/:project': 'orgProjectChart',
-  '/:owner/:name/project/:project': 'projectChart',
+  '/:owner/:name/projects': 'projects',
+  '/:owner/:name/projects/:project': 'projectChart',
   '/demo': 'demo'
 };
 
 let blank = false;
 
 // Build a link to a page.
-let find = ({ to, params, query }) => {
+const find = ({ to, params, query }) => {
   let $url;
-  let re = /:[^\/]+/g;
+  const re = /:[^\/]+/g;
 
   // Skip empty objects.
   [ params, query ] = [ _.isObject(params) ? params : {}, query ].map(o => _.pick(o, _.keys(o)));
@@ -42,7 +42,7 @@ let find = ({ to, params, query }) => {
   // Find among the routes.
   _.find(routes, (name, url) => {
     if (name != to) return;
-    let matches = url.match(re);
+    const matches = url.match(re);
 
     // Do not match on the number of params.
     if (_.keys(params).length != (matches || []).length) return;
@@ -80,56 +80,56 @@ export default React.createClass({
     link: (route) => find(route),
     // Route to a link.
     navigate: (route) => {
-      let fn = _.isString(route) ? _.identity : find;
+      const fn = _.isString(route) ? _.identity : find;
       navigate(fn(route));
     }
   },
 
-  // Show projects.
-  projects() {
+  // Show repos.
+  repos() {
     document.title = 'Burnchart: GitHub Burndown Chart as a Service';
-    process.nextTick(() => actions.emit('projects.load'));
-    return <ProjectsPage />;
+    process.nextTick(() => actions.emit('repos.load'));
+    return <ReposPage />;
   },
 
-  // Show project milestones.
+  // Add a repo.
+  addRepo() {
+    document.title = 'Add a repo';
+    return <AddRepoPage />;
+  },
+
+  // Show repo milestones.
   milestones(owner, name) {
     document.title = `${owner}/${name}`;
-    process.nextTick(() => actions.emit('projects.load', { owner, name }));
+    process.nextTick(() => actions.emit('repos.load', { owner, name }));
     return <MilestonesPage owner={owner} name={name} />;
+  },
+
+  // Show a repo milestone chart.
+  chart(owner, name, milestone) {
+    document.title = `${owner}/${name}/${milestone}`;
+    process.nextTick(() => actions.emit('repos.load', { owner, name, milestone }));
+    return <ChartPage owner={owner} name={name} milestone={milestone} />;
   },
 
   // Show projects (i.e. boards) for a repo.
   projects(owner, name) {
     document.title = `${owner}/${name} projects`;
     process.nextTick(() => actions.emit('projects.load', { owner, name }));
-    return <GitHubProjectsPage owner={owner} name={name} />;
-  },
-
-  // Show a project milestone chart.
-  chart(owner, name, milestone) {
-    document.title = `${owner}/${name}/${milestone}`;
-    process.nextTick(() => actions.emit('projects.load', { owner, name, milestone }));
-    return <ChartPage owner={owner} name={name} milestone={milestone} />;
+    return <ProjectsPage owner={owner} name={name} />;
   },
 
   // Show a GitHub project (i.e. board) chart.
   projectChart(owner, name, project) {
-    document.title = `${owner}/${name}/${project}`;
+    document.title = `${owner}/${name}/ projects/${project}`;
     process.nextTick(() => actions.emit('projects.load', { owner, name, milestone }));
     return <ProjectChartPage owner={owner} name={name} project={project} />;
   },
 
-  // Add a project.
-  addProject() {
-    document.title = 'Add a project';
-    return <AddProjectPage />;
-  },
-
-  // Demo projects.
+  // Demo repos.
   demo() {
-    actions.emit('projects.demo');
-    navigate(find({ 'to': 'projects' }));
+    actions.emit('repos.demo');
+    navigate(find({ 'to': 'repos' }));
     return <div />;
   },
 
@@ -144,12 +144,12 @@ export default React.createClass({
       process.nextTick(() => this.setState({ tick: true }));
       blank = false;
       return <div />;
-    } else {
-      blank = true;
-      // Clear any notifications.
-      process.nextTick(() => actions.emit('system.notify'));
-      return this.renderCurrentRoute();
     }
+    
+    blank = true;
+    // Clear any notifications.
+    process.nextTick(() => actions.emit('system.notify'));
+    return this.renderCurrentRoute();
   }
 
 });

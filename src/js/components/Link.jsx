@@ -17,8 +17,8 @@ export default class Link extends React.Component {
   }
 
   render() {
-    let route = this.props.route;
-    let link = App.link(route);
+    const { route } = this.props;
+    const link = App.link(route);
 
     return (
       <a

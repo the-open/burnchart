@@ -21,12 +21,12 @@ export default class ChartPage extends Page {
   render() {
     let content;
     if (!this.state.app.system.loading) {
-      let projects = this.state.projects;
+      const { repos } = this.state;
       // Find the milestone.
       let milestone;
-      _.find(projects.list, (obj) => {
+      _.find(repos.list, obj => {
         if (obj.owner == this.props.owner && obj.name == this.props.name) {
-          return _.find(obj.milestones, (m) => {
+          return _.find(obj.milestones, m => {
             if (m.number == this.props.milestone) {
               milestone = m;
               return true;

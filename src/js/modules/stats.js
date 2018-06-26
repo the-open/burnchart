@@ -3,11 +3,8 @@ import _ from 'lodash';
 
 // Progress in %.
 let progress = (a, b) => {
-  if (a + b === 0) {
-    return 0;
-  } else {
-    return 100 * (a / (b + a));
-  }
+  if (a + b === 0) return 0;
+  return 100 * (a / (b + a));
 };
 
 // Calculate the stats for a milestone.
@@ -18,7 +15,7 @@ export default (milestone) => {
 
   let points = 0, a, b, c, time, days, span;
 
-  let stats = {
+  const stats = {
     'isDone': false,
     'isOnTime': true,
     'isOverdue': false,
@@ -26,7 +23,7 @@ export default (milestone) => {
   };
 
   // Progress in points.
-  let i = milestone.issues.closed.size,
+  const i = milestone.issues.closed.size,
       j = milestone.issues.open.size;
   if (i) {
     stats.isEmpty = false;

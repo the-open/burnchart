@@ -14,7 +14,7 @@ if (location.search) {
 }
 
 //&chart[off_days][0]=0&chart[off_days][1]=6
-let el = document.getElementById('app');
+const el = document.getElementById('app');
 // Set the theme.
 el.className = `theme--${config.theme}`;
 

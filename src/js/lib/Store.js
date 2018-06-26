@@ -21,7 +21,7 @@ export default class Store extends EventEmitter {
 
   // Register an async function callback, handle loading state.
   cb(fn) {
-    let id = _.uniqueId();
+    const id = _.uniqueId();
     actions.emit('system.loading', true);
     return this._cbs[id] = (...args) => {
       // Still running?
@@ -38,7 +38,7 @@ export default class Store extends EventEmitter {
   //  functions need to end. Unreference any onChange events too.
   clean(onChange) {
     for (let id in this._cbs) delete this._cbs[id];
-    if (_.isFunction(onChange)) this.offAny(onChange);
+    _.isFunction(onChange) && this.offAny(onChange);
     actions.emit('system.loading', false);
   }
 
@@ -82,20 +82,20 @@ export default class Store extends EventEmitter {
     // Make sure the key is an array.
     if (!_.isArray(key)) key = key.split('.');
 
-    let obj = this.get(key);
+    const obj = this.get(key);
     if (_.isArray(obj)) {
       this.set(key.concat(obj.length), val); // TODO: won't emit for root key
       return obj.length - 1;
-    } else {
-      this.set(key, [ val ]);
-      return 0;
     }
+
+    this.set(key, [ val ]);
+    return 0;
   }
 
   // Get this key path or everything. Pass a callback to be
   //  provided with value once it is set.
   get(path, cb) {
-    let val = opa.get(this[DATA], path);
+    const val = opa.get(this[DATA], path);
     if (!_.isFunction(cb)) return val;
 
     if (opa.has(this[DATA], path)) return cb(val);

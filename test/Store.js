@@ -5,7 +5,7 @@ import actions from '../src/js/actions/appActions.js';
 
 describe('Store', () => {
   it('set', done => {
-    let s = new Store();
+    const s = new Store();
 
     s.set('A.B', 1); // key as a string
     s.set([ 'A', 'C' ], 2); // key as an array
@@ -16,7 +16,7 @@ describe('Store', () => {
   });
 
   it('push', done => {
-    let s = new Store({ 'list': [ 'A' ] });
+    const s = new Store({ 'list': [ 'A' ] });
 
     s.push('list', 'B'); // key as a string
     s.push([ 'list' ], 'C'); // key as an array
@@ -27,7 +27,7 @@ describe('Store', () => {
   });
 
   it('push with init', done => {
-    let s = new Store();
+    const s = new Store();
 
     s.push('list', 'A');
 
@@ -37,7 +37,7 @@ describe('Store', () => {
   });
 
   it('get', done => {
-    let s = new Store({ 'A': [ 1, 2 ], 'B': { 'C': 3 } });
+    const s = new Store({ 'A': [ 1, 2 ], 'B': { 'C': 3 } });
 
     assert.equal(2, s.get('A.1')); // key as a string
     assert.equal(3, s.get([ 'B', 'C' ])); // key as an array
@@ -46,10 +46,10 @@ describe('Store', () => {
   });
 
   it('get with callback', done => {
-    let s = new Store({ 'A': 1 });
+    const s = new Store({ 'A': 1 });
 
-    let vals = [];
-    let cb = (val) => vals.push(val);
+    const vals = [];
+    const cb = val => vals.push(val);
 
     s.get('A', cb);
     s.get('B', cb);
@@ -61,7 +61,7 @@ describe('Store', () => {
   });
 
   it('setSilent', done => {
-    let s = new Store();
+    const s = new Store();
 
     let val;
 
@@ -77,7 +77,7 @@ describe('Store', () => {
   });
 
   it('assign', done => {
-    let s = new Store({ A: 1 });
+    const s = new Store({ A: 1 });
 
     s.set({ B: 1 });
 
@@ -87,7 +87,7 @@ describe('Store', () => {
   });
 
   it('changes', done => {
-    let s = new Store({ A: { B: { C: 1 } } });
+    const s = new Store({ A: { B: { C: 1 } } });
 
     let key;
 
@@ -101,13 +101,13 @@ describe('Store', () => {
   });
 
   it('cb called', done => {
-    let s = new Store();
+    const s = new Store();
 
-    let events = [];
-    actions.on('system.loading', (val) => events.push(val));
+    const events = [];
+    actions.on('system.loading', val => events.push(val));
 
     let called = false;
-    let cb = s.cb(() => called = true);
+    const cb = s.cb(() => called = true);
     assert.equal(1, Object.keys(s._cbs).length);
     cb();
     assert.ok(called);
@@ -118,13 +118,13 @@ describe('Store', () => {
   });
 
   it('cb cancelled', done => {
-    let s = new Store();
+    const s = new Store();
 
-    let events = [];
-    actions.on('system.loading', (val) => events.push(val));
+    const events = [];
+    actions.on('system.loading', val => events.push(val));
 
     let called = false;
-    let cb = s.cb(() => called = true);
+    const cb = s.cb(() => called = true);
     assert.equal(1, Object.keys(s._cbs).length);
     setTimeout(cb, 10);
     s.clean();

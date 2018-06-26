@@ -19,23 +19,23 @@ export default class Milestones extends React.Component {
 
   // Cycle through milestones sort order.
   _onSort() {
-    actions.emit('projects.sort');
+    actions.emit('repos.sort');
   }
 
   _onRefresh() {
-    actions.emit('projects.load');
+    actions.emit('repos.load');
   }
 
   render() {
-    let { projects, project } = this.props;
+    const { repos, repo } = this.props;
 
-    // Show the projects with errors first.
-    let errors = _(projects.list).filter('errors').map((project, i) => {
-      let text = project.errors.join('\n');
+    // Show the repos with errors first.
+    const errors = _(repos.list).filter('errors').map((repo, i) => {
+      const text = repo.errors.join('\n');
       return (
         <tr key={`err-${i}`}>
           <td colSpan="3" className="repo">
-            <div className="project">{project.owner}/{project.name}
+            <div className="project">{repo.owner}/{repo.name}
               <span className="error" title={text}><Icon name="warning"/></span>
             </div>
           </td>
@@ -44,13 +44,13 @@ export default class Milestones extends React.Component {
     }).value();
 
     // Now for the list of milestones, index sorted.
-    let list = [];
-    _.each(projects.index, ([ pI, mI ]) => {
-      let { owner, name, milestones } = projects.list[pI];
-      let milestone = milestones[mI];
+    const list = [];
+    _.each(repos.index, ([ pI, mI ]) => {
+      const { owner, name, milestones } = repos.list[pI];
+      const milestone = milestones[mI];
 
       // Filter down?
-      if (!(!project || (project.owner == owner && project.name == name))) return;
+      if (!(!repo || (repo.owner == owner && repo.name == name))) return;
 
       list.push(
         <tr className={cls({ 'done': milestone.stats.isDone })} key={`${pI}-${mI}`}>
@@ -91,12 +91,12 @@ export default class Milestones extends React.Component {
     // Wait for something to show.
     if (!errors.length && !list.length) return false;
 
-    if (project) {
-      // Project-specific milestones.
+    if (repo) {
+      // Repo-specific milestones.
       return (
         <div id="projects">
           <div className="header">
-            <a className="sort" onClick={this._onSort}><Icon name="sort"/> Sorted by {projects.sortBy}</a>
+            <a className="sort" onClick={this._onSort}><Icon name="sort"/> Sorted by {repos.sortBy}</a>
             <h2>Milestones</h2>
           </div>
           <table>
@@ -106,12 +106,12 @@ export default class Milestones extends React.Component {
         </div>
       );
     } else {
-      // List of projects and their milestones.
+      // List of repos and their milestones.
       return (
         <div id="projects">
           <div className="header">
-            <a className="sort" onClick={this._onSort}><Icon name="sort"/> Sorted by {projects.sortBy}</a>
-            <h2>Projects</h2>
+            <a className="sort" onClick={this._onSort}><Icon name="sort"/> Sorted by {repos.sortBy}</a>
+            <h2>Repos</h2>
           </div>
           <table>
             <tbody>
@@ -120,8 +120,8 @@ export default class Milestones extends React.Component {
             </tbody>
           </table>
           <div className="footer">
-            <a onClick={this.props.onToggleMode}>Edit Projects</a>
-            <a onClick={this._onRefresh}>Refresh Projects</a>
+            <a onClick={this.props.onToggleMode}>Edit Repos</a>
+            <a onClick={this._onRefresh}>Refresh Repos</a>
           </div>
         </div>
       );

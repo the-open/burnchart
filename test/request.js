@@ -33,8 +33,8 @@ class Sa {
 let superagent = new Sa();
 
 // Proxy the superagent lib.
-let lib = path.resolve(__dirname, '../src/js/modules/github/request.js');
-let request = proxy(lib, { superagent }).default;
+const lib = path.resolve(__dirname, '../src/js/modules/github/request.js');
+const request = proxy(lib, { superagent }).default;
 
 describe('request', () => {
   it('all milestones (ok)', done => {
@@ -44,8 +44,8 @@ describe('request', () => {
       'body': [ null ]
     };
 
-    let owner = 'radekstepan';
-    let name = 'burnchart';
+    const owner = 'radekstepan';
+    const name = 'burnchart';
 
     request.allMilestones({}, { owner, name }, (err, data) => {
       assert.isNull(err);
@@ -68,11 +68,11 @@ describe('request', () => {
       }
     };
 
-    let owner = 'radekstepan';
-    let name = 'burnchart';
-    let milestone = 0;
+    const owner = 'radekstepan';
+    const name = 'burnchart';
+    const milestone = 0;
 
-    request.oneMilestone({}, { owner, name, milestone }, (err) => {
+    request.oneMilestone({}, { owner, name, milestone }, err => {
       assert(err, 'Error');
       done();
     });
@@ -85,9 +85,9 @@ describe('request', () => {
       'body': [ null ]
     };
 
-    let owner = 'radekstepan';
-    let name = 'burnchart';
-    let milestone = 1;
+    const owner = 'radekstepan';
+    const name = 'burnchart';
+    const milestone = 1;
 
     request.oneMilestone({}, { owner, name, milestone }, (err, data) => {
       assert.isNull(err);
@@ -111,11 +111,11 @@ describe('request', () => {
       }
     };
 
-    let owner = 'radekstepan';
-    let name = 'burnchart';
-    let milestone = 0;
+    const owner = 'radekstepan';
+    const name = 'burnchart';
+    const milestone = 0;
 
-    request.oneMilestone({}, { owner, name, milestone }, (err) => {
+    request.oneMilestone({}, { owner, name, milestone }, err => {
       assert(err, 'Not Found');
       done();
     });
@@ -128,11 +128,11 @@ describe('request', () => {
       'body': null
     };
 
-    let owner = 'radekstepan';
-    let name = 'burnchart';
-    let milestone = 0;
+    const owner = 'radekstepan';
+    const name = 'burnchart';
+    const milestone = 0;
 
-    request.oneMilestone({}, { owner, name, milestone }, (err) => {
+    request.oneMilestone({}, { owner, name, milestone }, err => {
       assert(err, 'Error');
       done();
     });
@@ -145,9 +145,9 @@ describe('request', () => {
       'body': [ null ]
     };
 
-    let owner = 'radekstepan';
-    let name = 'burnchart';
-    let milestone = 0;
+    const owner = 'radekstepan';
+    const name = 'burnchart';
+    const milestone = 0;
 
     request.allIssues({}, { owner, name, milestone }, {}, (err, data) => {
       assert.isNull(err);
@@ -171,9 +171,9 @@ describe('request', () => {
       'body': [ null ]
     };
 
-    let owner = 'radekstepan';
-    let name = 'burnchart';
-    let milestone = 0;
+    const owner = 'radekstepan';
+    const name = 'burnchart';
+    const milestone = 0;
 
     request.allIssues({}, { owner, name, milestone }, {}, (err) => {
       assert(err, 'Request has timed out');
@@ -184,9 +184,9 @@ describe('request', () => {
   it('use tokens', done => {
     superagent.response = {};
 
-    let user = { 'credential': { 'accessToken': 'ABC' }};
-    let owner = 'radekstepan';
-    let name = 'burnchart';
+    const user = { 'credential': { 'accessToken': 'ABC' }};
+    const owner = 'radekstepan';
+    const name = 'burnchart';
 
     request.repo(user, { owner, name }, () => {
       assert(superagent.params.Authorization, 'token ABC');

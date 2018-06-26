@@ -9,7 +9,7 @@ import config from '../src/config.js';
 
 import json from './fixtures/issues.json';
 
-let repo = {
+const repo = {
   'owner': 'radekstepan',
   'name': 'burnchart',
   'milestone': 1
@@ -18,7 +18,7 @@ let repo = {
 describe('issues', () => {
   it('time format', done => {
     // ISO 8601 dates are in UTC timezone.
-    let utc = moment(json[0].created_at).toDate().toUTCString();
+    const utc = moment(json[0].created_at).toDate().toUTCString();
     assert(utc, 'Fri, 22 Apr 2011 13:33:48 GMT');
     done();
   });
@@ -101,7 +101,7 @@ describe('issues', () => {
     let called = 0;
     request.allIssues = (user, repo, opts, cb) => {
       called += 1;
-      cb(null, _.range(99).map((number) => { return { number }; } ));
+      cb(null, _.range(99).map(number => ({ number }) ));
     };
 
     opa.set(config, 'chart.points', 'ONE_SIZE');
@@ -121,7 +121,7 @@ describe('issues', () => {
       called += 1;
       switch(opts.page) {
         case 1:
-          return cb(null, _.range(100).map((number) => { return { number }; }));
+          return cb(null, _.range(100).map(number => ({ number }) ));
         case 2:
           return cb(null, []);
         default:
@@ -146,7 +146,7 @@ describe('issues', () => {
       called += 1;
       switch(opts.page) {
         case 1:
-          return cb(null, _.range(100).map((number) => { return { number }; }));
+          return cb(null, _.range(100).map(number => ({ number }) ));
         case 2:
           return cb(null,  [{ 'number': 100 }]);
         default:
@@ -175,7 +175,7 @@ describe('issues', () => {
         case 1:
         case 2:
           let i = 100 * (opts.page - 1);
-          return cb(null, _.range(i, i + 100).map((number) => { return { number }; }));
+          return cb(null, _.range(i, i + 100).map(number => ({ number }) ));
         case 3:
           return cb(null,  [{ 'number': 200 }]);
         default:
@@ -191,7 +191,7 @@ describe('issues', () => {
       assert(open.size, 201);
       assert(closed.size, 201);
       _.each([ open, closed ], ({ list }) => {
-        _.each([ 100, 200 ], (number) => {
+        _.each([ 100, 200 ], number => {
           assert.deepEqual(list[number], { number, 'size': 1 });
         });
       });
@@ -287,7 +287,7 @@ describe('issues', () => {
     issues.fetchAll({}, repo, (err, { open, closed }) => {
       assert.isNull(err);
       assert(open.size, 11);
-      let [ a, b ] = open.list;
+      const [ a, b ] = open.list;
       assert(a.size, 7);
       assert(b.size, 4);
       done();
