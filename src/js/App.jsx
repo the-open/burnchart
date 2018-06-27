@@ -23,8 +23,8 @@ const routes = {
   '/': 'repos',
   '/new/repo': 'addRepo',
   '/:owner/:name': 'milestones',
-  '/:owner/:name/:milestone': 'chart',
   '/:owner/:name/projects': 'projects',
+  '/:owner/:name/:milestone': 'chart',
   '/:owner/:name/projects/:project': 'projectChart',
   '/demo': 'demo'
 };
@@ -122,7 +122,7 @@ export default React.createClass({
   // Show a GitHub project (i.e. board) chart.
   projectChart(owner, name, project) {
     document.title = `${owner}/${name}/ projects/${project}`;
-    process.nextTick(() => actions.emit('projects.load', { owner, name, milestone }));
+    process.nextTick(() => actions.emit('projects.load', { owner, name, project }));
     return <ProjectChartPage owner={owner} name={name} project={project} />;
   },
 
@@ -145,7 +145,7 @@ export default React.createClass({
       blank = false;
       return <div />;
     }
-    
+
     blank = true;
     // Clear any notifications.
     process.nextTick(() => actions.emit('system.notify'));

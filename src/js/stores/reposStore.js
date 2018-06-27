@@ -17,7 +17,7 @@ class ReposStore extends Store {
   // Initial payload.
   constructor() {
     // Init the repos from local storage.
-    let list = lscache.get('repos') || [];
+    const list = lscache.get('repos') || [];
 
     super({
       // A stack of repos.
@@ -36,6 +36,8 @@ class ReposStore extends Store {
       // Run?
       (fn in this) && this[fn](obj);
     });
+
+    actions.on('projects.load', this.onProjectsLoad.bind(this));
 
     // Listen to when user is ready and save info on us.
     actions.on('user.ready', (user) => this.set('user', user));
@@ -68,31 +70,29 @@ class ReposStore extends Store {
     _.each(repos, r => delete r.errors);
 
     // Wait for the user to get resolved.
-    this.get('user', this.cb((user) => { // async
-      if (args) {
-        if ('milestone' in args) {
-          // For a single milestone.
-          this.getMilestone(user, {
-            'owner': args.owner,
-            'name': args.name
-          }, args.milestone, true); // notify as well
-        } else if ('project' in args) {
-          // TODO
-        } else {
-          // For a single repo.
-          _.find(this.get('list'), (obj) => {
-            if (args.owner == obj.owner && args.name == obj.name) {
-              args = obj; // expand by saved properties
-              return true;
-            };
-            return false;
-          });
-          this.getRepo(user, args);
-        }
-      } else {
-        // For all repos.
-        _.each(repos, r => this.getRepo(user, r));
+    this.get('user', this.cb(user => { // async
+      // For all repos.
+      if (!args) {
+        return _.each(repos, r => this.getAllMilestones(user, r));
       }
+
+      // For a single milestone.
+      if ('milestone' in args) {
+        return this.getMilestone(user, {
+          'owner': args.owner,
+          'name': args.name
+        }, args.milestone, true); // notify as well
+      }
+
+      // All milestones for a single repo.
+      _.find(this.get('list'), obj => {
+        if (args.owner == obj.owner && args.name == obj.name) {
+          args = obj; // expand by saved properties
+          return true;
+        };
+        return false;
+      });
+      this.getAllMilestones(user, args);
     }));
   }
 
@@ -130,7 +130,7 @@ class ReposStore extends Store {
     if (!text || !text.length) return;
 
     // Wait for the user to get resolved.
-    this.get('user', this.cb((user) => { // async
+    this.get('user', this.cb(user => { // async
       let owner, name;
       // Can we get the owner (and name) from the text?
       if (/\//.test(text)) {
@@ -178,6 +178,74 @@ class ReposStore extends Store {
     // And the index, sorting again.
     this.set('index', []);
     this.sort();
+  }
+
+  // Fetch issues for a project(s).
+  // TODO refactor
+  onProjectsLoad(args) {
+    const repos = this.get('list');
+
+    // Reset first.
+    _.each(repos, r => delete r.errors);
+
+    // Wait for the user to get resolved.
+    this.get('user', this.cb(user => { // async
+      // For all repos.
+      if (!args) {
+        return _.each(repos, r => this.getAllProjects(user, r));
+      }
+
+      // For a single project.
+      if ('project' in args) {
+        return this.getProject(user, {
+          'owner': args.owner,
+          'name': args.name
+        }, args.project, true); // notify as well
+      }
+
+      // All repo's projects.
+      _.find(this.get('list'), obj => {
+        if (args.owner == obj.owner && args.name == obj.name) {
+          args = obj; // expand by saved properties
+          return true;
+        };
+        return false;
+      });
+      this.getAllProjects(user, args);
+    }));
+  }
+
+  // Fetch projects and issues for a repo.
+  getProject(user, r) {
+    // Fetch their project.
+    request.allProjects(user, r, this.cb((err, projects) => { // async
+      // Save the error if repo does not exist.
+      if (err) return this.saveError(r, err);
+      // Now add in the issues.
+      projects.forEach(project => {
+        // Do we have this project already? Skip fetching issues then.
+        if (!_.find(r.projects, ({ number }) => project.number === number)) {
+          // Fetch all the issues for this project.
+          this.getProjectIssues(user, r, project);
+        }
+      });
+    }));
+  }
+
+  // Fetch all issues for a project.
+  getProjectIssues(user, r, p, say) {
+    issues.fetchAll(user, {
+      'owner': r.owner,
+      'name': r.name,
+      'project': p.number
+    }, this.cb((err, obj) => { // async
+      // Save any errors on the repo.
+      if (err) return this.saveError(r, err, say);
+      // Add in the issues to the project.
+      _.extend(p, { 'issues': obj });
+      // Save the project.
+      this.addProject(r, p, say);
+    }));
   }
 
   // Return a sort order comparator.
@@ -251,7 +319,7 @@ class ReposStore extends Store {
   }
 
   // Fetch milestones and issues for a repo.
-  getRepo(user, r) {
+  getAllMilestones(user, r) {
     // Fetch their milestones.
     request.allMilestones(user, r, this.cb((err, milestones) => { // async
       // Save the error if repo does not exist.
@@ -259,14 +327,60 @@ class ReposStore extends Store {
       // Now add in the issues.
       milestones.forEach(milestone => {
         // Do we have this milestone already? Skip fetching issues then.
-        if (!_.find(r.milestones, ({ number }) => {
-          return milestone.number === number;
-        })) {
+        if (!_.find(r.milestones, ({ number }) => milestone.number === number)) {
           // Fetch all the issues for this milestone.
           this.getIssues(user, r, milestone);
         }
       });
     }));
+  }
+
+  // Fetch projects and issues for a repo.
+  getAllProjects(user, r) {
+    // Fetch their projects.
+    request.allProjects(user, r, this.cb((err, projects) => { // async
+      // Save the error if repo does not exist.
+      if (err) return this.saveError(r, err);
+      // Now add in the issues.
+      projects.forEach(project => {
+        // Do we have this project already? Skip fetching issues then.
+        if (!_.find(r.projects, ({ number }) => project.number === number)) {
+          // Fetch all the issues for this project.
+          this.getIssues(user, r, project);
+        }
+      });
+    }));
+  }
+
+  // Add a project for a repo.
+  addProject(repo, project, say) {
+    // Add in the stats.
+    let i, j;
+    _.extend(project, { 'stats': stats(project) });
+
+    // Notify?
+    say && this.notify(project);
+
+    // If repo hasn't been found, add it behind the scenes.
+    if ((i = this.findIndex(repo)) < 0) {
+      i = this.push('list', repo);
+    }
+
+    // Does the project exist already?
+    let projects;
+    if (projects = this.get(`list.${i}.projects`)) {
+      j = _.findIndex(projects, { 'number': project.number });
+      // Just make an update then.
+      if (j != -1) {
+        return this.set(`list.${i}.projects.${j}`, project);
+      }
+    }
+
+    // Push the project and return the index.
+    j = this.push(`list.${i}.projects`, project);
+
+    // Now index this project.
+    this.sort([ i, j ], [ repo, project ]);
   }
 
   // Fetch a single milestone.
@@ -280,12 +394,12 @@ class ReposStore extends Store {
       // Save the error if repo does not exist.
       if (err) return this.saveError(r, err, say);
       // Now add in the issues.
-      this.getIssues(user, r, milestone, say);
+      this.getMilestoneIssues(user, r, milestone, say);
     }));
   }
 
   // Fetch all issues for a milestone.
-  getIssues(user, r, m, say) {
+  getMilestoneIssues(user, r, m, say) {
     issues.fetchAll(user, {
       'owner': r.owner,
       'name': r.name,
