@@ -4,6 +4,8 @@ import async from 'async';
 import config from '../../../config.js';
 import request from './request.js';
 
+// TODO needs a rewrite to support issues coming from GraphQL.
+
 // Fetch issues for a milestone.
 export default {
   fetchAll: (user, repo, cb) => {
@@ -68,13 +70,13 @@ let calcSize = (list) => {
 let oneStatus = (user, repo, state, cb) => {
   // Concat them here.
   let results = [];
-  
+
   let done = (err) => {
     if (err) return cb(err);
     // Sort by closed time and add the size.
     cb(null, calcSize(_.sortBy(results, 'closed_at')));
   };
-  
+
   let fetchPage;
   // One pageful fetch (next pages in series).
   return (fetchPage = (page) => {

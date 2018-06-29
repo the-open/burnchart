@@ -10,11 +10,11 @@ let progress = (a, b) => {
   }
 };
 
-// Calculate the stats for a milestone.
+// Calculate the stats for a project.
 //  Is it on time? What is the progress?
-export default (milestone) => {
+export default (project) => {
   // Makes testing easier...
-  if (milestone.stats != null) return milestone.stats;
+  if (project.stats != null) return project.stats;
 
   let points = 0, a, b, c, time, days, span;
 
@@ -26,8 +26,8 @@ export default (milestone) => {
   };
 
   // Progress in points.
-  let i = milestone.issues.closed.size,
-      j = milestone.issues.open.size;
+  let i = project.issues.closed.size,
+      j = project.issues.open.size;
   if (i) {
     stats.isEmpty = false;
     if (i + j > 0) {
@@ -36,20 +36,20 @@ export default (milestone) => {
     }
   }
 
-  // Check that milestone hasn't been created after issue close; #100.
-  if (milestone.issues.closed.size) {
-    milestone.created_at = _.reduce(milestone.issues.closed.list
+  // Check that project hasn't been created after issue close; #100.
+  if (project.issues.closed.size) {
+    project.created_at = _.reduce(project.issues.closed.list
     , (x, { closed_at }) => (x > closed_at) ? closed_at : x
-    , milestone.created_at);
+    , project.created_at);
   }
 
-  // The dates in this milestone.
-  a = moment(milestone.created_at, moment.ISO_8601);
+  // The dates in this project.
+  a = moment(project.created_at, moment.ISO_8601);
   b = moment.utc();
-  c = moment(milestone.due_on, moment.ISO_8601);
+  c = moment(project.due_on, moment.ISO_8601);
 
   // Milestones with no due date are always on track.
-  if (!(milestone.due_on != null)) {
+  if (!(project.due_on != null)) {
     // The number of days from start to now.
     span = b.diff(a, 'days');
     return _.extend(stats, { span, 'progress': { points } });

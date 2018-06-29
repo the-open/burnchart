@@ -10,7 +10,7 @@ export default {
     return moment(jsonDate, moment.ISO_8601).fromNow();
   },
 
-  // When is a milestone due?
+  // When is a project due?
   due(jsonDate) {
     if (!jsonDate) {
       return '\u00a0'; // for React
@@ -25,12 +25,12 @@ export default {
     marked.apply(null, args);
   },
 
-  // Format milestone title.
+  // Format project title.
   title(text) {
-    if (text.toLowerCase().indexOf('milestone') > -1) {
+    if (text.toLowerCase().indexOf('project') > -1) {
       return text;
     } else {
-      return `Milestone ${text}`;
+      return `Project ${text}`;
     }
   },
 
