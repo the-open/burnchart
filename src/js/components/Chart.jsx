@@ -20,16 +20,16 @@ export default class Chart extends React.Component {
   }
 
   componentDidMount() {
-    let { data } = this.props;
+    const { data } = this.props;
 
     // Skip charts that have nothing to show.
     if (data.stats.isEmpty) return;
 
     let issues = data.issues;
-    // Total number of points in the milestone.
+    // Total number of points in the project.
     let total = issues.open.size + issues.closed.size;
 
-    // An issue may have been closed before the start of a milestone.
+    // An issue may have been closed before the start of a project.
     if (issues.closed.size > 0) {
       let head = issues.closed.list[0].closed_at;
       if (issues.length && data.created_at > head) {

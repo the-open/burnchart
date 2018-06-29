@@ -24,9 +24,9 @@ export default class Header extends React.Component {
     actions.emit('user.signout');
   }
 
-  // Add example projects.
+  // Add example repos.
   _onDemo() {
-    actions.emit('projects.demo');
+    actions.emit('repos.demo');
   }
 
   render() {
@@ -62,14 +62,14 @@ export default class Header extends React.Component {
         <div id="head">
           {user}
 
-          <Link route={{ 'to': 'projects' }} id="icon">
+          <Link route={{ 'to': 'repos' }} id="icon">
             <Icon name={icon} />
           </Link>
 
           <ul>
             <li>
-              <Link route={{ 'to': 'addProject' }}>
-                <Icon name="plus" /> Add a Project
+              <Link route={{ 'to': 'addRepo' }}>
+                <Icon name="plus" /> Add a Repo
               </Link>
             </li>
             <li>

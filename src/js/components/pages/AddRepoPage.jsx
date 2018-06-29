@@ -7,11 +7,11 @@ import Page from '../../lib/PageClass.js';
 import Notify from '../Notify.jsx';
 import Header from '../Header.jsx';
 import Footer from '../Footer.jsx';
-import AddProjectForm from '../AddProjectForm.jsx';
+import AddRepoForm from '../AddRepoForm.jsx';
 
-export default class AddProjectPage extends Page {
+export default class AddRepoPage extends Page {
 
-  displayName: 'AddProjectPage.jsx'
+  displayName: 'AddRepoPage.jsx'
 
   constructor(props) {
     super(props);
@@ -25,9 +25,9 @@ export default class AddProjectPage extends Page {
 
         <div id="page">
           <div id="content" className="wrap">
-            <AddProjectForm
+            <AddRepoForm
               user={this.state.app.user}
-              suggestions={this.state.projects.suggestions}
+              suggestions={this.state.repos.suggestions}
             />
           </div>
         </div>

@@ -7,30 +7,30 @@ import actions from '../actions/appActions.js';
 import Icon from './Icon.jsx';
 import Link from './Link.jsx';
 
-export default class EditProjects extends React.Component {
+export default class EditRepos extends React.Component {
 
-  displayName: 'EditProjects.jsx'
+  displayName: 'EditRepos.jsx'
 
   constructor(props) {
     super(props);
   }
 
-  _onDelete(project) {
-    actions.emit('projects.delete', project);
+  _onDelete(repo) {
+    actions.emit('repo.delete', repo);
   }
 
   render() {
-    let { projects } = this.props;
+    const { repos } = this.props;
 
-    let list = _(projects.list)
+    let list = _(repos.list)
     .sortBy(({ owner, name }) => `${owner}/${name}`)
     .map(({owner, name}, i) => {
       return (
         <tr key={`${owner}-${name}`}>
-          <td className="repo" colSpan="2">
+          <td colSpan="2">
             <Link
-              route={{ 'to': 'milestones', 'params': { owner, name } }}
-              className="project"
+              route={{ 'to': 'projects', 'params': { owner, name } }}
+              className="repo"
               >
               {owner}/{name}
             </Link>
@@ -47,13 +47,13 @@ export default class EditProjects extends React.Component {
     if (!list.length) return false;
 
     return (
-      <div id="projects">
-        <div className="header"><h2>Edit Projects</h2></div>
+      <div id="repos">
+        <div className="header"><h2>Edit Repos</h2></div>
         <table>
           <tbody>{list}</tbody>
         </table>
         <div className="footer">
-          <a onClick={this.props.onToggleMode}>View Projects</a>
+          <a onClick={this.props.onToggleMode}>View Repos</a>
         </div>
       </div>
     );

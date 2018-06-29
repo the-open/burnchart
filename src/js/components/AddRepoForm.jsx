@@ -8,9 +8,9 @@ import actions from '../actions/appActions.js';
 import Icon from './Icon.jsx';
 import S from './Space.jsx';
 
-export default class AddProjectForm extends React.Component {
+export default class AddRepoForm extends React.Component {
 
-  displayName: 'AddProjectForm.jsx'
+  displayName: 'AddRepoForm.jsx'
 
   constructor(props) {
     super(props);
@@ -32,7 +32,7 @@ export default class AddProjectForm extends React.Component {
 
   // Get a list of repo suggestions.
   _onGetList({ value }) {
-    actions.emit('projects.search', value);
+    actions.emit('repos.search', value);
   }
 
   // What should be the value of the suggestion.
@@ -47,14 +47,14 @@ export default class AddProjectForm extends React.Component {
 
   // Add the project.
   _onAdd() {
-    let val = this.state.val;
+    const val = this.state.val;
     // Validate input.
     if (!/^[^\s\/]+\/[^\s\/]+$/.test(val)) return;
 
-    let [ owner, name ] = val.split('/');
-    actions.emit('projects.add', { owner, name });
+    const [ owner, name ] = val.split('/');
+    actions.emit('repo.add', { owner, name });
     // Redirect to the dashboard.
-    App.navigate({ 'to': 'projects' });
+    App.navigate({ 'to': 'repos' });
   }
 
   render() {
@@ -70,9 +70,9 @@ export default class AddProjectForm extends React.Component {
     return (
       <div id="add">
         <div className="header">
-          <h2>Add a Project</h2>
+          <h2>Add a Repo</h2>
           <p>Type the name of a GitHub repository that has some
-          milestones with issues.{user}</p>
+          projects with issues.{user}</p>
         </div>
 
         <div className="form">
@@ -105,7 +105,7 @@ export default class AddProjectForm extends React.Component {
         </div>
 
         <div className="protip">
-          <Icon name="rocket"/> Protip: To see if a milestone is on track or not,
+          <Icon name="rocket"/> Protip: To see if a project is on track or not,
           make sure it has a due date assigned to it.
         </div>
       </div>

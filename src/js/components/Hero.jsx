@@ -13,9 +13,9 @@ export default class Hero extends React.Component {
     super(props);
   }
 
-  // Add example projects.
+  // Add example repos.
   _onDemo() {
-    actions.emit('projects.demo');
+    actions.emit('repos.demo');
   }
 
   render() {
@@ -23,12 +23,12 @@ export default class Hero extends React.Component {
       <div id="hero">
         <div className="content">
           <Icon name="direction" />
-          <h2>See your project progress</h2>
-          <p>Serious about a project deadline? Add your GitHub project
+          <h2>See your repo progress</h2>
+          <p>Serious about a repo deadline? Add your GitHub repo
           and we'll tell you if it is running on time or not.</p>
           <div className="cta">
-            <Link route={{ to: 'addProject' }} className="primary">
-              <Icon name="plus" /> Add a Project
+            <Link route={{ to: 'addRepo' }} className="primary">
+              <Icon name="plus" /> Add a Repo
             </Link>
             <Link route={{ to: 'demo' }} className="secondary">
               <Icon name="computer" /> See Examples
