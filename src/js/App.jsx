@@ -3,10 +3,10 @@ import { RouterMixin, navigate } from 'react-mini-router';
 import _ from 'lodash';
 import './modules/lodash.js';
 
+import ReposPage from './components/pages/ReposPage.jsx';
+import AddRepoPage from './components/pages/AddRepoPage.jsx';
 import ProjectsPage from './components/pages/ProjectsPage.jsx';
-import MilestonesPage from './components/pages/MilestonesPage.jsx';
-import ChartPage from './components/pages/ChartPage.jsx';
-import AddProjectPage from './components/pages/AddProjectPage.jsx';
+import ProjectPage from './components/pages/ProjectPage.jsx';
 import NotFoundPage from './components/pages/NotFoundPage.jsx';
 
 import actions from './actions/appActions.js';
@@ -18,14 +18,10 @@ delete RouterMixin.handleClick;
 
 // Values are function names below.
 let routes = {
-  '/': 'projects',
-  '/new/project': 'addProject',
-  '/:owner/:name': 'milestones',
-  '/:owner/:name/:milestone': 'chart',
-  '/:owner/:name/projects': 'githubProjects',
-  '/:owner/projects': 'orgProjects',
-  '/:owner/project/:project': 'orgProjectChart',
-  '/:owner/:name/project/:project': 'projectChart',
+  '/': 'repos',
+  '/new/repo': 'addRepo',
+  '/:owner/:name': 'projects',
+  '/:owner/:name/:project': 'project',
   '/demo': 'demo'
 };
 
@@ -85,51 +81,37 @@ export default React.createClass({
     }
   },
 
-  // Show projects.
-  projects() {
+  // Show repos.
+  repos() {
     document.title = 'Burnchart: GitHub Burndown Chart as a Service';
-    process.nextTick(() => actions.emit('projects.load'));
-    return <ProjectsPage />;
+    process.nextTick(() => actions.emit('repos.load'));
+    return <ReposPage />;
   },
 
-  // Show project milestones.
-  milestones(owner, name) {
-    document.title = `${owner}/${name}`;
-    process.nextTick(() => actions.emit('projects.load', { owner, name }));
-    return <MilestonesPage owner={owner} name={name} />;
+  // Add a repo.
+  addRepo() {
+    document.title = 'Add a repo';
+    return <AddRepoPage />;
   },
 
-  // Show projects (i.e. boards) for a repo.
+  // Show all projects for a repo.
   projects(owner, name) {
-    document.title = `${owner}/${name} projects`;
-    process.nextTick(() => actions.emit('projects.load', { owner, name }));
-    return <GitHubProjectsPage owner={owner} name={name} />;
+    document.title = `${owner}/${name}`;
+    process.nextTick(() => actions.emit('repos.load', { owner, name }));
+    return <ProjectsPage owner={owner} name={name} />;
   },
 
-  // Show a project milestone chart.
-  chart(owner, name, milestone) {
-    document.title = `${owner}/${name}/${milestone}`;
-    process.nextTick(() => actions.emit('projects.load', { owner, name, milestone }));
-    return <ChartPage owner={owner} name={name} milestone={milestone} />;
-  },
-
-  // Show a GitHub project (i.e. board) chart.
-  projectChart(owner, name, project) {
+  // Show a project chart.
+  project(owner, name, project) {
     document.title = `${owner}/${name}/${project}`;
-    process.nextTick(() => actions.emit('projects.load', { owner, name, milestone }));
-    return <ProjectChartPage owner={owner} name={name} project={project} />;
-  },
-
-  // Add a project.
-  addProject() {
-    document.title = 'Add a project';
-    return <AddProjectPage />;
+    process.nextTick(() => actions.emit('repos.load', { owner, name, project }));
+    return <ProjectPage owner={owner} name={name} project={project} />;
   },
 
   // Demo projects.
   demo() {
-    actions.emit('projects.demo');
-    navigate(find({ 'to': 'projects' }));
+    actions.emit('repos.demo');
+    navigate(find({ 'to': 'repos' }));
     return <div />;
   },
 
