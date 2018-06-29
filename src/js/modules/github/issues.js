@@ -4,24 +4,32 @@ import async from 'async';
 import config from '../../../config.js';
 import request from './request.js';
 
-// TODO needs a rewrite to support issues coming from GraphQL.
-
-// Fetch issues for a milestone.
+// Convert project boards issues into our internal format.
 export default {
-  fetchAll: (user, repo, cb) => {
-    // For each `open` and `closed` issues in parallel.
-    async.parallel([
-      _.partial(oneStatus, user, repo, 'open'),
-      _.partial(oneStatus, user, repo, 'closed')
-    ], (err=null, [ open, closed ]) => {
-      cb(err, { open, closed });
+  fromBoards: boards => {
+    const issues = {
+      open: [],
+      closed: []
+    };
+
+    boards.forEach(board => {
+      board.cards.nodes.forEach(node => {
+        if (!node.content || !node.content.state) return;
+        issues[node.content.state.toLowerCase()].push(node.content);
+      });
     });
+
+    // Sort by closed time and add the size.
+    return {
+      open: calcSize(_.sortBy(issues.open, 'closedAt')),
+      closed: calcSize(_.sortBy(issues.closed, 'closedAt'))
+    };
   }
 };
 
 // Calculate size of either open or closed issues.
 //  Modifies issues by ref.
-let calcSize = (list) => {
+const calcSize = list => {
   let size;
 
   switch (config.chart.points) {
@@ -64,33 +72,4 @@ let calcSize = (list) => {
 
   // Sync return.
   return { list, size };
-};
-
-// For each state...
-let oneStatus = (user, repo, state, cb) => {
-  // Concat them here.
-  let results = [];
-
-  let done = (err) => {
-    if (err) return cb(err);
-    // Sort by closed time and add the size.
-    cb(null, calcSize(_.sortBy(results, 'closed_at')));
-  };
-
-  let fetchPage;
-  // One pageful fetch (next pages in series).
-  return (fetchPage = (page) => {
-    request.allIssues(user, repo, { state, page }, (err, data) => {
-      // Errors?
-      if (err) return done(err);
-      // Empty?
-      if (!data.length) return done(null, results);
-      // Append the data.
-      results = results.concat(data);
-      // < 100 results?
-      if (data.length < 100) return done(null, results);
-      // Fetch the next page then.
-      fetchPage(page + 1);
-    });
-  })(1);
 };

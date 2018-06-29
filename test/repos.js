@@ -11,7 +11,7 @@ let lscache = {
 };
 
 // Proxy the request module.
-let lib = path.resolve(__dirname, '../src/js/stores/projectsStore.js');
+let lib = path.resolve(__dirname, '../src/js/stores/reposStore.js');
 const repos = proxy(lib, {
   lscache, '../modules/github/request.js': request
 }).default;

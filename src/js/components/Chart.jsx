@@ -25,57 +25,57 @@ export default class Chart extends React.Component {
     // Skip charts that have nothing to show.
     if (data.stats.isEmpty) return;
 
-    let issues = data.issues;
+    const issues = data.issues;
     // Total number of points in the project.
-    let total = issues.open.size + issues.closed.size;
+    const total = issues.open.size + issues.closed.size;
 
     // An issue may have been closed before the start of a project.
     if (issues.closed.size > 0) {
-      let head = issues.closed.list[0].closed_at;
-      if (issues.length && data.created_at > head) {
+      const head = issues.closed.list[0].closedAt;
+      if (issues.length && data.createdAt > head) {
         // This is the new start.
-        data.created_at = head;
+        data.createdAt = head;
       }
     }
 
     // Set created date to the beginning of the day, makes for a better display
     //  when issues get closed right at the beginning.
-    data.created_at = moment(data.created_at, moment.ISO_8601)
+    data.createdAt = moment(data.createdAt, moment.ISO_8601)
     .startOf('day').toISOString();
 
     // Actual, ideal & trend lines.
-    let actual = lines.actual(issues.closed.list, data.created_at, total);
-    let ideal = lines.ideal(data.created_at, data.due_on, total);
-    let trend = lines.trend(actual, data.created_at, data.due_on);
+    const actual = lines.actual(issues.closed.list, data.createdAt, total);
+    const ideal = lines.ideal(data.createdAt, data.closedAt, total);
+    const trend = lines.trend(actual, data.createdAt, data.closedAt);
 
     // Get available space.
     let { height, width } = this.refs.el.getBoundingClientRect();
 
-    let margin = { 'top': 30, 'right': 30, 'bottom': 40, 'left': 50 };
+    const margin = { 'top': 30, 'right': 30, 'bottom': 40, 'left': 50 };
     width -= margin.left + margin.right;
     height -= margin.top + margin.bottom;
 
     // Scales.
-    let x = d3.time.scale().range([ 0, width ]);
-    let y = d3.scale.linear().range([ height, 0 ]);
+    const x = d3.time.scale().range([ 0, width ]);
+    const y = d3.scale.linear().range([ height, 0 ]);
 
     // Axes.
-    let xAxis = axes.time(height, x, data.stats.span);
-    let yAxis = axes.points(width, y);
+    const xAxis = axes.time(height, x, data.stats.span);
+    const yAxis = axes.points(width, y);
 
     // Line generator.
-    let line = d3.svg.line()
+    const line = d3.svg.line()
     .interpolate("linear")
     .x((d) => x(new Date(d.date))) // convert to Date only now
     .y((d) => y(d.points));
 
     // Get the minimum and maximum date, and initial points.
-    let first = ideal[0], last = ideal[ideal.length - 1];
+    const first = ideal[0], last = ideal[ideal.length - 1];
     x.domain([ new Date(first.date), new Date(last.date) ]);
     y.domain([ 0, first.points ]).nice();
 
     // Add an SVG element with the desired dimensions and margin.
-    let svg = d3.select(this.refs.el).append("svg")
+    const svg = d3.select(this.refs.el).append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
@@ -98,7 +98,7 @@ export default class Chart extends React.Component {
     .call(xAxis);
 
     // Add the years x-axis?
-    let yrAxis = axes.year(height, xAxis, data.stats.span);
+    const yrAxis = axes.year(height, xAxis, data.stats.span);
 
     svg.append("g")
     .attr("class", "x axis year")
@@ -137,7 +137,7 @@ export default class Chart extends React.Component {
     .attr("d", line.interpolate("linear").y((d) => y(d.points))(actual));
 
     // Collect the tooltip here.
-    let tooltip = d3.tip().attr('class', 'd3-tip')
+    const tooltip = d3.tip().attr('class', 'd3-tip')
     .html(({ number, title }) => `#${number}: ${title}`);
 
     svg.call(tooltip);

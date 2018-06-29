@@ -38,18 +38,18 @@ export default (project) => {
 
   // Check that project hasn't been created after issue close; #100.
   if (project.issues.closed.size) {
-    project.created_at = _.reduce(project.issues.closed.list
-    , (x, { closed_at }) => (x > closed_at) ? closed_at : x
-    , project.created_at);
+    project.createdAt = _.reduce(project.issues.closed.list
+    , (x, { closedAt }) => (x > closedAt) ? closedAt : x
+    , project.createdAt);
   }
 
   // The dates in this project.
-  a = moment(project.created_at, moment.ISO_8601);
+  a = moment(project.createdAt, moment.ISO_8601);
   b = moment.utc();
-  c = moment(project.due_on, moment.ISO_8601);
+  c = moment(project.closedAt, moment.ISO_8601);
 
-  // Milestones with no due date are always on track.
-  if (!(project.due_on != null)) {
+  // No due date = always on track.
+  if (!(project.closedAt != null)) {
     // The number of days from start to now.
     span = b.diff(a, 'days');
     return _.extend(stats, { span, 'progress': { points } });

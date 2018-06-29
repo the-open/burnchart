@@ -26,16 +26,16 @@ export default class ProjectsPage extends Page {
       _.find(repos.list, obj => {
         if (obj.owner == this.props.owner && obj.name == this.props.name) {
           if (obj.projects) {
-            let created_at = 'Z',
-                due_on = '0',
+            let createdAt = 'Z',
+                closedAt = '0',
                 issues = {
                   'closed': { 'list': [], 'size': 0 },
                   'open':   { 'list': [], 'size': 0 }
                 };
             // Merge all the project issues together.
             _(obj.projects).filter(p => !p.stats.isEmpty).map(p => {
-              if (p.created_at < created_at) created_at = p.created_at;
-              if (p.due_on > due_on) due_on = p.due_on;
+              if (p.createdAt < createdAt) createdAt = p.createdAt;
+              if (p.closedAt > closedAt) closedAt = p.closedAt;
               _.each([ 'closed', 'open' ], (k) => {
                 issues[k].list = issues[k].list.concat(p.issues[k].list);
                 issues[k].size += p.issues[k].size;
@@ -43,12 +43,12 @@ export default class ProjectsPage extends Page {
               return p;
             }).value();
 
-            issues.closed.list = _.sortBy(issues.closed.list, 'closed_at');
+            issues.closed.list = _.sortBy(issues.closed.list, 'closedAt');
 
             // A meta project.
-            data = { issues, created_at, 'stats': { 'isEmpty': false } };
+            data = { issues, createdAt, 'stats': { 'isEmpty': false } };
 
-            if (due_on != '0') data.due_on = due_on;
+            if (closedAt != '0') data.closedAt = closedAt;
           }
           return true;
         }

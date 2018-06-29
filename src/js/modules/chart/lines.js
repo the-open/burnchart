@@ -8,12 +8,12 @@ export default {
 
   // A graph of closed issues.
   // `issues`:     closed issues list
-  // `created_at`: project start date
+  // `createdAt`:  project start date
   // `total`:      total number of points (open & closed issues)
-  actual(issues, created_at, total) {
+  actual(issues, createdAt, total) {
     let min, max;
     let head = [{
-      'date': moment(created_at, moment.ISO_8601).toJSON(),
+      'date': moment(createdAt, moment.ISO_8601).toJSON(),
       'points': total
     }];
 
@@ -21,13 +21,13 @@ export default {
 
     // Generate the actual closes.
     let rest = _.map(issues, (issue) => {
-      let { size, closed_at } = issue;
+      let { size, closedAt } = issue;
       // Determine the range.
       if (size < min) min = size;
       if (size > max) max = size;
 
       // Dropping points remaining.
-      issue.date = moment(closed_at, moment.ISO_8601).toJSON();
+      issue.date = moment(closedAt, moment.ISO_8601).toJSON();
       issue.points = total -= size;
       return issue;
     });
@@ -98,7 +98,7 @@ export default {
   },
 
   // Graph representing a trendling of actual issues.
-  trend(actual, created_at, due_on) {
+  trend(actual, createdAt, closedAt) {
     if (!actual.length) return [];
 
     let first = actual[0], last = actual[actual.length - 1];
@@ -127,25 +127,25 @@ export default {
 
     let fn = (x) => slope * x + intercept;
 
-    // Milestone always has a creation date.
-    created_at = moment(created_at, moment.ISO_8601);
+    // Projects always have a creation date.
+    createdAt = moment(createdAt, moment.ISO_8601);
 
     // Due date specified.
-    if (due_on) {
-      due_on = moment(due_on, moment.ISO_8601);
+    if (closedAt) {
+      closedAt = moment(closedAt, moment.ISO_8601);
       // In the past?
-      if (now > due_on) due_on = now;
+      if (now > closedAt) closedAt = now;
     // No due date
     } else {
-      due_on = now;
+      closedAt = now;
     }
 
-    a = created_at.diff(start);
-    let b = due_on.diff(start);
+    a = createdAt.diff(start);
+    let b = closedAt.diff(start);
 
     return [
-      { 'date': created_at.toJSON(), 'points': fn(a) },
-      { 'date': due_on.toJSON(), 'points': fn(b) }
+      { 'date': createdAt.toJSON(), 'points': fn(a) },
+      { 'date': closedAt.toJSON(), 'points': fn(b) }
     ];
   }
 

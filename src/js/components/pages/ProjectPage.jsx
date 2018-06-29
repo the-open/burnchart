@@ -10,9 +10,9 @@ import Header from '../Header.jsx';
 import Footer from '../Footer.jsx';
 import Chart from '../Chart.jsx';
 
-export default class ChartPage extends Page {
+export default class ProjectPage extends Page {
 
-  displayName: 'ChartPage.jsx'
+  displayName: 'ProjectPage.jsx'
 
   constructor(props) {
     super(props);
@@ -47,8 +47,7 @@ export default class ChartPage extends Page {
           <div>
             <div id="title">
               <div className="wrap">
-                <h2 className="title">{format.title(project.title)}</h2>
-                <span className="sub">{format.due(project.due_on)}</span>
+                <h2 className="title">{format.title(project.name)}</h2>
                 <div className="description">{description}</div>
               </div>
             </div>

@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import superagent from 'superagent';
+import opa from 'object-path';
 
 import actions from '../../actions/appActions.js';
 
@@ -79,26 +80,28 @@ export default {
       method: 'POST',
     }, defaults.github);
 
-    request(data, cb);
+    request(data, (err, res) => {
+      cb(err, opa.get(res, 'data.repository.projects.nodes'));
+    });
   },
 
-  oneProject: (user, { owner, name, project }, cb) => {
+  oneProject: (user, { owner, name, project_number }, cb) => {
     let token = (user && user.credential != null) ? user.credential.accessToken : null;
 
     let data = _.defaults({
       path: '/graphql',
       body: JSON.stringify(name ? {
-        query: graphqlQueries.allProjectsForRepo,
+        query: graphqlQueries.oneProject,
         variables: {
           owner,
           name,
-          project
+          project_number
         }
       } : {
         query: graphqlQueries.oneOrgProject,
         variables: {
           owner,
-          project
+          project_number
         }
       }),
       headers: {
@@ -107,7 +110,9 @@ export default {
       method: 'POST',
     }, defaults.github);
 
-    request(data, cb);
+    request(data, (err, res) => {
+      cb(err, opa.get(res, 'data.repository.project'));
+    });
   }
 };
 

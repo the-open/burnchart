@@ -31,6 +31,8 @@ export default {
     query($owner: String!, $name: String!, $project_number: Int!) {
       repository(owner: $owner, name: $name) {
         project(number: $project_number) {
+          name
+          number
           createdAt
           closedAt
           columns(first: 10) {
@@ -43,6 +45,7 @@ export default {
                       number
                       title
                       createdAt
+                      closedAt
                       state
                       labels(first: 10) {
                         nodes {
@@ -63,6 +66,8 @@ export default {
     query($login: String!, $project_number: Int!) {
       organization(login: $login) {
         project(number: $project_number) {
+          name
+          number
           createdAt
           closedAt
           columns(first: 10) {
@@ -75,6 +80,7 @@ export default {
                       number
                       title
                       createdAt
+                      closedAt
                       state
                     }
                   }

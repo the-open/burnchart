@@ -1,0 +1,17 @@
+{
+	"data": {
+		"repository": {
+			"projects": {
+				"nodes": [{
+					"name": "First disposable project",
+					"number": 1,
+					"createdAt": "2018-06-26T17:11:59Z"
+				}, {
+					"name": "Second disposable project",
+					"number": 2,
+					"createdAt": "2018-06-26T17:12:14Z"
+				}]
+			}
+		}
+	}
+}

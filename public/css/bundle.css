@@ -872,7 +872,7 @@ ul li {
 #page #content #add .form .suggest .list .item.focused {
   background: #EFEFEF;
 }
-#page #content #projects {
+#page #content #repos {
   border: 1px solid #cdcecf;
   -webkit-border-radius: 2px;
   -webkit-background-clip: padding-box;
@@ -881,47 +881,47 @@ ul li {
   border-radius: 2px;
   background-clip: padding-box;
 }
-#page #content #projects h2 {
+#page #content #repos h2 {
   color: #3e4457;
   display: inline-block;
 }
-#page #content #projects .sort:not(.icon) {
+#page #content #repos .sort:not(.icon) {
   float: right;
   line-height: 30px;
 }
-#page #content #projects table {
+#page #content #repos table {
   width: 100%;
 }
-#page #content #projects table tr td {
+#page #content #repos table tr td {
   background: #fcfcfc;
   padding: 20px 30px;
   border-bottom: 1px solid #eaecf2;
 }
-#page #content #projects table tr td .project {
+#page #content #repos table tr td .repo {
   color: inherit;
 }
-#page #content #projects table tr td .project .error {
+#page #content #repos table tr td .repo .error {
   cursor: help;
 }
-#page #content #projects table tr td a.project {
+#page #content #repos table tr td a.repo {
   font-weight: bold;
 }
-#page #content #projects table tr td .milestone .icon {
+#page #content #repos table tr td .milestone .icon {
   font-size: 10px;
   margin: 0;
 }
-#page #content #projects table tr td .progress {
+#page #content #repos table tr td .progress {
   width: 200px;
 }
-#page #content #projects table tr td .progress .percent,
-#page #content #projects table tr td .progress .due {
+#page #content #repos table tr td .progress .percent,
+#page #content #repos table tr td .progress .due {
   color: #9399ad;
   font-size: 13px;
 }
-#page #content #projects table tr td .progress .percent {
+#page #content #repos table tr td .progress .percent {
   float: right;
 }
-#page #content #projects table tr td .progress .bar {
+#page #content #repos table tr td .progress .bar {
   -webkit-border-radius: 4px;
   -webkit-background-clip: padding-box;
   -moz-border-radius: 4px;
@@ -932,25 +932,25 @@ ul li {
   height: 10px;
   width: 100%;
 }
-#page #content #projects table tr td .progress .bar.inner {
+#page #content #repos table tr td .progress .bar.inner {
   -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
   -moz-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
-#page #content #projects table tr td .progress .bar.red {
+#page #content #repos table tr td .progress .bar.red {
   background: #C1041C;
 }
-#page #content #projects table tr td .progress .bar.green {
+#page #content #repos table tr td .progress .bar.green {
   background: #00b361;
 }
-#page #content #projects table tr td .progress .due.red {
+#page #content #repos table tr td .progress .due.red {
   color: #C1041C;
   font-weight: bold;
 }
-#page #content #projects table tr td:first-child {
+#page #content #repos table tr td:first-child {
   color: #3e4457;
 }
-#page #content #projects table tr td.action {
+#page #content #repos table tr td.action {
   text-align: right;
   cursor: pointer;
   -webkit-user-select: none;
@@ -958,35 +958,35 @@ ul li {
   -ms-user-select: none;
   user-select: none;
 }
-#page #content #projects table tr:nth-child(even) td {
+#page #content #repos table tr:nth-child(even) td {
   background: #fefefe;
 }
-#page #content #projects table tr:last-child td {
+#page #content #repos table tr:last-child td {
   border: 0;
 }
-#page #content #projects table tr.done td {
+#page #content #repos table tr.done td {
   background: #ebf6f1;
 }
-#page #content #projects table tr.done td .milestone,
-#page #content #projects table tr.done td .percent,
-#page #content #projects table tr.done td .due {
+#page #content #repos table tr.done td .milestone,
+#page #content #repos table tr.done td .percent,
+#page #content #repos table tr.done td .due {
   color: #00b361;
 }
-#page #content #projects .header,
-#page #content #projects .footer {
+#page #content #repos .header,
+#page #content #repos .footer {
   padding: 20px 30px;
 }
-#page #content #projects .header {
+#page #content #repos .header {
   -webkit-box-shadow: 0 1px 2px rgba(221, 225, 237, 0.5);
   -moz-box-shadow: 0 1px 2px rgba(221, 225, 237, 0.5);
   box-shadow: 0 1px 2px rgba(221, 225, 237, 0.5);
   margin-bottom: 2px;
   border-bottom: 1px solid #dde1ed;
 }
-#page #content #projects .header a {
+#page #content #repos .header a {
   font-family: 'MuseoSlab500Regular', serif;
 }
-#page #content #projects .footer {
+#page #content #repos .footer {
   background: #f9fafb;
   color: #aaafbf;
   -webkit-box-shadow: inset 0 1px 2px rgba(221, 225, 237, 0.2);
@@ -996,13 +996,13 @@ ul li {
   font-family: 'MuseoSlab500Regular', serif;
   font-size: 14px;
 }
-#page #content #projects .footer .icon {
+#page #content #repos .footer .icon {
   color: #aaafbf;
 }
-#page #content #projects .footer > a:first-child {
+#page #content #repos .footer > a:first-child {
   float: right;
 }
-#page #content #projects .footer:after {
+#page #content #repos .footer:after {
   clear: both;
   display: block;
   content: "";
@@ -1065,9 +1065,9 @@ ul li {
 #app.theme--monza #page #content #add .form a {
   background: #C1041C;
 }
-#app.theme--monza #page #content #projects table tr td .project .error {
+#app.theme--monza #page #content #repos table tr td .repo .error {
   color: #C1041C;
 }
-#app.theme--monza #page #content #projects table tr td.action {
+#app.theme--monza #page #content #repos table tr td.action {
   color: #760211;
 }

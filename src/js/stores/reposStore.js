@@ -75,7 +75,7 @@ class ReposStore extends Store {
           this.getProject(user, {
             'owner': args.owner,
             'name': args.name
-          }, args.project, true); // notify as well
+          }, { number: parseInt(args.project, 10) }, true); // notify as well
         } else {
           // For a single repo.
           _.find(this.get('list'), obj => {
@@ -117,7 +117,8 @@ class ReposStore extends Store {
       'list': [
         { 'owner': 'd3', 'name': 'd3' },
         { 'owner': 'radekstepan', 'name': 'disposable' },
-        { 'owner': 'rails', 'name': 'rails' }
+        { 'owner': 'rails', 'name': 'rails' },
+        { 'owner': 'twbs', 'name': 'bootstrap' }
       ],
       'index': []
     });
@@ -235,11 +236,11 @@ class ReposStore extends Store {
           }
 
           // Try semver.
-          if (semver.valid(bP.title) && semver.valid(aP.title)) {
-            return semver.gt(bP.title, aP.title);
+          if (semver.valid(bP.name) && semver.valid(aP.name)) {
+            return semver.gt(bP.name, aP.name);
           // Back to string compare.
           } else {
-            return bP.title.localeCompare(aP.title);
+            return bP.name.localeCompare(aP.name);
           }
         });
 
@@ -250,14 +251,13 @@ class ReposStore extends Store {
   }
 
   // Fetch projects in a repo.
-  getProjects(user, r) {
+  getRepo(user, r, say) {
     request.allProjects(user, r, this.cb((err, projects) => { // async
       // Save the error if repo does not exist.
       if (err) return this.saveError(r, err);
-      projects.forEach(obj => {
-        // Save the projet.
-        // TODO do something with obj and projects
-        this.addProject(r, obj, say);
+      // Get the issues.
+      projects.forEach(p => {
+        this.getProject(user, r, p, say);
       });
     }));
   }
@@ -267,14 +267,47 @@ class ReposStore extends Store {
     request.oneProject(user, {
       'owner': r.owner,
       'name': r.name,
-      'project': p
-    }, this.cb((err, obj) => { // async
+      'project_number': p.number
+    }, this.cb((err, project) => { // async
       // Save the error if repo does not exist.
       if (err) return this.saveError(r, err, say);
       // Save the projet.
-      // TODO do something with obj and p
-      this.addProject(r, obj, say);
+      this.addProject(r, project, say);
     }));
+  }
+
+  // Add a project for a repo.
+  addProject(repo, project, say) {
+    // Parse the issues.
+    project.issues = issues.fromBoards(project.columns.nodes);
+
+    // Add in the stats.
+    let i, j;
+    _.extend(project, { 'stats': stats(project) });
+
+    // Notify?
+    say && this.notify(project);
+
+    // If repo hasn't been found, add it behind the scenes.
+    if ((i = this.findIndex(repo)) < 0) {
+      i = this.push('list', repo);
+    }
+
+    // Does the project exist already?
+    let projects;
+    if (projects = this.get(`list.${i}.projects`)) {
+      j = _.findIndex(projects, { 'number': project.number });
+      // Just make an update then.
+      if (j != -1) {
+        return this.set(`list.${i}.projects.${j}`, project);
+      }
+    }
+
+    // Push the project and return the index.
+    j = this.push(`list.${i}.projects`, project);
+
+    // Now index this project.
+    this.sort([ i, j ], [ repo, project ]);
   }
 
   // Talk about the stats of a project.
@@ -310,37 +343,6 @@ class ReposStore extends Store {
         'type': 'warn'
       });
     }
-  }
-
-  // Add a project for a repo.
-  addProject(repo, project, say) {
-    // Add in the stats.
-    let i, j;
-    _.extend(project, { 'stats': stats(project) });
-
-    // Notify?
-    if (say) this.notify(project);
-
-    // If repo hasn't been found, add it behind the scenes.
-    if ((i = this.findIndex(repo)) < 0) {
-      i = this.push('list', repo);
-    }
-
-    // Does the project exist already?
-    let projects;
-    if (projects = this.get(`list.${i}.projects`)) {
-      j = _.findIndex(projects, { 'number': project.number });
-      // Just make an update then.
-      if (j != -1) {
-        return this.set(`list.${i}.projects.${j}`, project);
-      }
-    }
-
-    // Push the project and return the index.
-    j = this.push(`list.${i}.projects`, project);
-
-    // Now index this project.
-    this.sort([ i, j ], [ repo, project ]);
   }
 
   // Find index of a repo.

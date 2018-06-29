@@ -27,11 +27,11 @@ export default class Projects extends React.Component {
   }
 
   render() {
-    let { repos, repo } = this.props;
+    const { repos, repo } = this.props;
 
     // Show the repos with errors first.
-    let errors = _(repos.list).filter('errors').map((repo, i) => {
-      let text = repo.errors.join('\n');
+    const errors = _(repos.list).filter('errors').map((repo, i) => {
+      const text = repo.errors.join('\n');
       return (
         <tr key={`err-${i}`}>
           <td colSpan="3">
@@ -44,16 +44,16 @@ export default class Projects extends React.Component {
     }).value();
 
     // Now for the list of projects, index sorted.
-    let list = [];
-    _.each(repos.index, ([ pI, mI ]) => {
-      let { owner, name, projects } = repos.list[pI];
-      let project = projects[mI];
+    const list = [];
+    _.each(repos.index, ([ rI, pI ]) => {
+      const { owner, name, projects } = repos.list[rI];
+      const project = projects[pI];
 
       // Filter down?
       if (!(!repo || (repo.owner == owner && repo.name == name))) return;
 
       list.push(
-        <tr className={cls({ 'done': milestone.stats.isDone })} key={`${pI}-${mI}`}>
+        <tr className={cls({ 'done': project.stats.isDone })} key={`${rI}-${pI}`}>
           <td>
             <Link
               route={{ 'to': 'projects', 'params': { owner, name } }}
@@ -67,14 +67,14 @@ export default class Projects extends React.Component {
               route={{ 'to': 'project', 'params': { owner, name, 'project': project.number } }}
               className="project"
             >
-              {project.title}
+              {project.name}
             </Link>
           </td>
           <td style={{ 'width': '1%' }}>
             <div className="progress">
               <span className="percent">{Math.floor(project.stats.progress.points)}%</span>
               <span className={cls('due', { 'red': project.stats.isOverdue })}>
-                {format.due(project.due_on)}
+                {format.due(project.closedAt)}
               </span>
               <div className="outer bar">
                 <div
