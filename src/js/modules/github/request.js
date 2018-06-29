@@ -56,45 +56,6 @@ export default {
     request(data, cb);
   },
 
-  // Get all open milestones.
-  allMilestones: (user, { owner, name }, cb) => {
-    let token = (user && user.credential != null) ? user.credential.accessToken : null;
-    let data = _.defaults({
-      'path': `/repos/${owner}/${name}/milestones`,
-      'query': { 'state': 'open', 'sort': 'due_date', 'direction': 'asc' },
-      'headers': headers(token)
-    }, defaults.github);
-
-    request(data, cb);
-  },
-
-  // Get one open milestone.
-  oneMilestone: (user, { owner, name, milestone }, cb) => {
-    let token = (user && user.credential != null) ? user.credential.accessToken : null;
-    let data = _.defaults({
-      'path': `/repos/${owner}/${name}/milestones/${milestone}`,
-      'query': { 'state': 'open', 'sort': 'due_date', 'direction': 'asc' },
-      'headers': headers(token)
-    }, defaults.github);
-
-    request(data, function(err, data) {
-      console.log('oneMilestone', data);
-      cb(err, data);
-    });
-  },
-
-  // Get all issues for a state..
-  allIssues: (user, { owner, name, milestone }, query, cb) => {
-    let token = (user && user.credential != null) ? user.credential.accessToken : null;
-    let data = _.defaults({
-      'path': `/repos/${owner}/${name}/issues`,
-      'query': _.extend(query, { milestone, 'per_page': '100' }),
-      'headers': headers(token)
-    }, defaults.github);
-
-    return request(data, cb);
-  },
-
   allProjects: (user, { owner, name }, cb) => {
     let token = (user && user.credential != null) ? user.credential.accessToken : null;
 
@@ -117,10 +78,8 @@ export default {
       },
       method: 'POST',
     }, defaults.github);
-    request(data, (err, result) => {
-      console.log('graphql response!', err, result);
-      cb(err, result);
-    });
+
+    request(data, cb);
   },
 
   oneProject: (user, { owner, name, project }, cb) => {
@@ -147,11 +106,8 @@ export default {
       },
       method: 'POST',
     }, defaults.github);
-    request(data, (err, result) => {
-      console.log('graphql response!', err, result);
-      // Filter down to cards that are issues (as opposed to notes) here?
-      cb(err, result);
-    });
+
+    request(data, cb);
   }
 };
 
@@ -246,6 +202,3 @@ let error = (err) => {
 
   return text;
 };
-
-// oneMilestone:
-// - returns lists of open and closed issues.
