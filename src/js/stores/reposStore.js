@@ -95,7 +95,7 @@ class ReposStore extends Store {
   }
 
   // Push to the stack unless it exists already.
-  onRepoAdd(repo) {
+  onReposAdd(repo) {
     if (!_.find(this.get('list'), repo)) {
       this.push('list', repo);
     }
@@ -124,7 +124,7 @@ class ReposStore extends Store {
   }
 
   // Search for repos.
-  onRepoSearch(text) {
+  onReposSearch(text) {
     if (!text || !text.length) return;
 
     // Wait for the user to get resolved.
@@ -168,7 +168,7 @@ class ReposStore extends Store {
   }
 
   // Delete a repo.
-  onRepoDelete(repo) {
+  onReposDelete(repo) {
     const i = this.findIndex(repo);
     // Delete the repo.
     this.del(`list.${i}`);

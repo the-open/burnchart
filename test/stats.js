@@ -5,8 +5,8 @@ import moment from 'moment';
 import stats from '../src/js/modules/stats.js';
 
 export default {
-  'stats - is milestone empty, on time and overdue? no due date': (done) => {
-    let milestone = {
+  'stats - is project empty, on time and overdue? no due date': (done) => {
+    const project = {
       'issues': {
         'open': {
           'size': 0
@@ -17,7 +17,7 @@ export default {
       }
     };
 
-    let { isEmpty, isOverdue, isOnTime } = stats(milestone);
+    let { isEmpty, isOverdue, isOnTime } = stats(project);
 
     assert.isTrue(isEmpty);
     assert.isFalse(isOverdue);
@@ -27,7 +27,7 @@ export default {
   },
 
   'stats - has no progress been made?': (done) => {
-    let milestone = {
+    const project = {
       'issues': {
         'open': {
           'size': 1
@@ -38,13 +38,13 @@ export default {
       }
     };
 
-    assert.isTrue(stats(milestone).isEmpty);
+    assert.isTrue(stats(project).isEmpty);
 
     done();
   },
 
-  'stats - is milestone done?': (done) => {
-    let milestone = {
+  'stats - is project done?': (done) => {
+    const project = {
       'issues': {
         'open': {
           'size': 0
@@ -55,14 +55,14 @@ export default {
       }
     };
 
-    let { isDone } = stats(milestone);
+    let { isDone } = stats(project);
     assert.isTrue(isDone);
 
     done();
   },
 
-  'stats - is milestone overdue? has due date, yes': (done) => {
-    let milestone = {
+  'stats - is project overdue? has due date, yes': (done) => {
+    const project = {
       'created_at': '2011-04-02T00:00:00.000Z',
       'due_on': '2011-04-03T00:00:00.000Z',
       'issues': {
@@ -75,15 +75,15 @@ export default {
       }
     };
 
-    let { isOverdue } = stats(milestone);
+    let { isOverdue } = stats(project);
     assert.isTrue(isOverdue);
 
     done();
   },
 
-  'stats - is milestone on time? has due date, yes': (done) => {
+  'stats - is project on time? has due date, yes': (done) => {
     let now = moment.utc();
-    let milestone = {
+    const project = {
       'created_at': now.subtract(1, 'week').toISOString(),
       'due_on': now.add(1, 'month').toISOString(),
       'issues': {
@@ -96,15 +96,15 @@ export default {
       }
     };
 
-    let { isOnTime } = stats(milestone);
+    let { isOnTime } = stats(project);
     assert.isTrue(isOnTime);
 
     done();
   },
 
-  'stats - is milestone on time? has due date, no': (done) => {
+  'stats - is project on time? has due date, no': (done) => {
     let now = moment.utc();
-    let milestone = {
+    const project = {
       'created_at': now.subtract(2, 'week').toISOString(),
       'due_on': now.add(1, 'day').toISOString(),
       'issues': {
@@ -117,15 +117,15 @@ export default {
       }
     };
 
-    let { isOnTime } = stats(milestone);
+    let { isOnTime } = stats(project);
     assert.isFalse(isOnTime);
 
     done();
   },
 
-  'stats - is milestone on time? has due date, all issues closed': (done) => {
+  'stats - is prokect on time? has due date, all issues closed': (done) => {
     let now = moment.utc();
-    let milestone = {
+    const project = {
       'created_at': now.subtract(2, 'week').toISOString(),
       'due_on': now.subtract(1, 'week').toISOString(),
       'issues': {
@@ -138,19 +138,19 @@ export default {
       }
     };
 
-    let { isOnTime } = stats(milestone);
+    let { isOnTime } = stats(project);
     assert.isTrue(isOnTime);
 
     done();
   },
 
-  // Make sure milestone hasn't been created after closing an issue; #100.
-  'stats - milestone created_at': (done) => {
+  // Make sure project hasn't been created after closing an issue; #100.
+  'stats - project created_at': (done) => {
     let now = moment.utc();
     let a = now.clone().subtract(1, 'week').toISOString(),
         b = now.clone().subtract(1, 'day').toISOString()
 
-    let milestone = {
+    const project = {
       'created_at': b,
       'issues': {
         'open': {
@@ -164,9 +164,9 @@ export default {
     };
 
     // By ref.
-    stats(milestone);
+    stats(project);
 
-    assert.equal(milestone.created_at, a);
+    assert.equal(project.created_at, a);
 
     done();
   }

@@ -52,7 +52,7 @@ export default class AddRepoForm extends React.Component {
     if (!/^[^\s\/]+\/[^\s\/]+$/.test(val)) return;
 
     const [ owner, name ] = val.split('/');
-    actions.emit('repo.add', { owner, name });
+    actions.emit('repos.add', { owner, name });
     // Redirect to the dashboard.
     App.navigate({ 'to': 'repos' });
   }

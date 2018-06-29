@@ -16,7 +16,7 @@ export default class EditRepos extends React.Component {
   }
 
   _onDelete(repo) {
-    actions.emit('repo.delete', repo);
+    actions.emit('repos.delete', repo);
   }
 
   render() {

@@ -9,10 +9,12 @@ import config from '../src/config.js';
 
 import json from './fixtures/issues.json';
 
-let repo = {
+// TODO we are not fetching issues like this anymore
+
+const repo = {
   'owner': 'radekstepan',
   'name': 'burnchart',
-  'milestone': 1
+  'project': 1
 };
 
 describe('issues', () => {
