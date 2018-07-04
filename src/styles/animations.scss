@@ -1,0 +1,46 @@
+@mixin easeInOutBack($time) {
+  -webkit-transition: -webkit-filter top $time cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  -moz-transition: -moz-filter top $time cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  -o-transition: filter top $time cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transition: filter top $time cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+// ---
+
+.animTop-enter {
+  top: -68px;
+}
+
+.animTop-enter-active {
+  top: 0px;
+  @include easeInOutBack(2000ms);
+}
+
+.animTop-leave {
+  top: 0px;
+}
+
+.animTop-leave-active {
+  top: -68px;
+  @include easeInOutBack(1000ms);
+}
+
+// ---
+
+.animCenter-enter {
+  top: 0%;
+}
+
+.animCenter-enter-active {
+  top: 50%;
+  @include easeInOutBack(2000ms);
+}
+
+.animCenter-leave {
+  top: 50%;
+}
+
+.animCenter-leave-active {
+  top: 0%;
+  @include easeInOutBack(1000ms);
+}
