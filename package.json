@@ -50,8 +50,7 @@
     "superagent": "3.8.2"
   },
   "devDependencies": {
-    "react-scripts": "1.0.0",
-    "proxyquire": "2.0.1"
+    "react-scripts": "1.0.0"
   },
   "repository": {
     "type": "git",

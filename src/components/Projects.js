@@ -97,7 +97,7 @@ class Projects extends Component {
       return (
         <div id="repos">
           <div className="header">
-            <a className="sort" onClick={this.onSort}><Icon name="sort"/> Sorted by {repos.sortBy}</a>
+            <div className="sort" onClick={this.onSort}><Icon name="sort"/> Sorted by {repos.sortBy}</div>
             <h2>Projects</h2>
           </div>
           <table>
@@ -111,7 +111,7 @@ class Projects extends Component {
       return (
         <div id="repos">
           <div className="header">
-            <a className="sort" onClick={this.onSort}><Icon name="sort"/> Sorted by {repos.sortBy}</a>
+            <div className="sort" onClick={this.onSort}><Icon name="sort"/> Sorted by {repos.sortBy}</div>
             <h2>Repos</h2>
           </div>
           <table>

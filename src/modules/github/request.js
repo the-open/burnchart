@@ -116,7 +116,7 @@ export default {
 };
 
 // Make a request using SuperAgent.
-let request = ({ protocol, host, method, path, query, headers, body }, cb) => {
+const request = ({ protocol, host, method, path, query, headers, body }, cb) => {
   let exited = false;
 
   // Make the query params.
@@ -156,7 +156,7 @@ let request = ({ protocol, host, method, path, query, headers, body }, cb) => {
 };
 
 // How do we respond to a response?
-let response = (err, data, cb) => {
+const response = (err, data, cb) => {
   if (err) return cb(error(data ? data.body : err));
   // 2xx?
   if (data.statusType !== 2) return cb(error(data.body));
@@ -165,7 +165,7 @@ let response = (err, data, cb) => {
 };
 
 // Give us headers.
-let headers = (token) => {
+const headers = (token) => {
   // The defaults.
   let h = {
     'Content-Type': 'application/json',
@@ -180,7 +180,7 @@ let headers = (token) => {
 };
 
 // Parse an error.
-let error = (err) => {
+const error = (err) => {
   let text;
   switch (false) {
     case !_.isString(err):

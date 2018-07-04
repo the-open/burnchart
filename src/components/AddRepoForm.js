@@ -16,6 +16,7 @@ class AddRepoForm extends Component {
     // Bindings.
     this.onChange = this.onChange.bind(this);
     this.onAdd = this.onAdd.bind(this);
+    this.onGetList = this.onGetList.bind(this);
   }
 
   // Sign user in.
@@ -59,7 +60,7 @@ class AddRepoForm extends Component {
     if (!(user != null && 'uid' in user)) {
       privateAccess = (
         <span><S />If you'd like to add a private GitHub repo,
-        <S /><a onClick={this.onSignIn}>Sign In</a> first.</span>
+        <S /><div className="link" onClick={this.onSignIn}>Sign In</div> first.</span>
       );
     }
 
@@ -67,8 +68,8 @@ class AddRepoForm extends Component {
       <div id="add">
         <div className="header">
           <h2>Add a Repo</h2>
-          <p>Type the name of a GitHub repository that has some
-          projects with issues.{privateAccess}</p>
+          <div className="note">Type the name of a GitHub repository that has some
+          projects with issues.{privateAccess}</div>
         </div>
 
         <div className="form">
@@ -79,13 +80,14 @@ class AddRepoForm extends Component {
                   <Autosuggest
                     suggestions={this.props.suggestions || []}
                     getSuggestionValue={this.getListValue}
-                    onSuggestionsUpdateRequested={this.onGetList}
+                    onSuggestionsFetchRequested={this.onGetList}
+                    onSuggestionsClearRequested={() => {}}
                     renderSuggestion={this.renderListValue}
                     theme={{
-                      'container': 'suggest',
-                      'suggestionsContainer': 'list',
-                      'suggestion': 'item',
-                      'suggestionFocused': 'item focused'
+                      container: 'suggest',
+                      suggestionsContainer: 'list',
+                      suggestion: 'item',
+                      suggestionFocused: 'item focused'
                     }}
                     inputProps={{
                       placeholder: 'user/repo',
@@ -94,7 +96,7 @@ class AddRepoForm extends Component {
                     }}
                   />
                 </td>
-                <td><a onClick={this.onAdd}>Add</a></td>
+                <td><div className="link" onClick={this.onAdd}>Add</div></td>
               </tr>
             </tbody>
           </table>

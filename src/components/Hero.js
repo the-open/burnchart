@@ -16,10 +16,10 @@ class Hero extends Component {
           <p>Serious about a repo deadline? Add your GitHub repo
           and we'll tell you if it is running on time or not.</p>
           <div className="cta">
-            <div onClick={() => navigate('/new/repo')} className="primary">
+            <div onClick={() => navigate('/new/repo')} className="link primary">
               <Icon name="plus" /> Add a Repo
             </div>
-            <div onClick={() => navigate('/demo')} className="secondary">
+            <div onClick={() => navigate('/demo')} className="link secondary">
               <Icon name="computer" /> See Examples
             </div>
           </div>

@@ -247,45 +247,40 @@ const repos = {
     },
 
     // Search for repos.
-    async reposSearch(text, state) {
+    async searchRepos(text, state) {
       if (!text || !text.length) return;
 
-      // Wait for the user to get resolved.
-      this.get('user', this.cb((user) => { // async
-        // Can we get the owner (and name) from the text?
-        if (/\//.test(text)) {
-          var [ owner, name ] = text.split('/');
-        } else {
-          text = new RegExp(`^${text}`, 'i');
+      // Can we get the owner (and name) from the text?
+      let owner, name;
+      if (/\//.test(text)) {
+        [ owner, name ] = text.split('/');
+      } else {
+        text = new RegExp(`^${text}`, 'i');
+      }
+
+      // No owner means nothing to go on.
+      if (!owner) return;
+
+      // Make the request.
+      const res = await request.repos(state.account.user, owner)
+
+      const suggestions = (res.filter(repo => {
+        // Remove repos with no issues.
+        if (!repo.has_issues) return;
+
+        // Remove repos we have already.
+        if (this.has(repo.owner.login, repo.name)) return;
+
+        // Match on owner or name.
+        if (owner) {
+          if (!new RegExp(`^${owner}`, 'i').test(repo.owner.login)) return;
+          if (!name || new RegExp(`^${name}`, 'i').test(repo.name)) return true;
         }
+        return text.test(repo.owner.login) || text.test(repo.name);
+      }))
+      .map(({ full_name }) => full_name);
 
-        // No owner and no user means nothing to go by.
-        if (!owner && !user) return;
-
-        // Make the request.
-        request.repos(user, owner, this.cb((err, res) => {
-          if (err) return; // ignore errors
-
-          let list = _(res).filter(repo => {
-            // Remove repos with no issues.
-            if (!repo.has_issues) return;
-
-            // Remove repos we have already.
-            if (this.has(repo.owner.login, repo.name)) return;
-
-            // Match on owner or name.
-            if (owner) {
-              if (!new RegExp(`^${owner}`, 'i').test(repo.owner.login)) return;
-              if (!name || new RegExp(`^${name}`, 'i').test(repo.name)) return true;
-            }
-            return text.test(repo.owner.login) || text.test(repo.name);
-          })
-          .map(({ full_name }) => full_name)
-          .value();
-
-          this.set('suggestions', list);
-        }));
-      }));
+      return Object.assign({}, state, { suggestions });
     },
 
     // Fetch projects in a repo.

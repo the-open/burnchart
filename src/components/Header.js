@@ -36,17 +36,17 @@ class Header extends Component {
     if (account.user && account.user.github) {
       user = (
         <div className="right">
-          <a onClick={this.onSignOut}>
+          <div onClick={this.onSignOut}>
             <Icon name="signout" /> Sign Out {account.user.github.displayName}
-          </a>
+          </div>
         </div>
       );
     } else {
       user = (
         <div className="right">
-          <a className="button" onClick={this.onSignIn}>
+          <div className="button" onClick={this.onSignIn}>
             <Icon name="github"/> Sign In
-          </a>
+          </div>
         </div>
       );
     }
@@ -60,18 +60,18 @@ class Header extends Component {
         <div id="head">
           {user}
 
-          <div onClick={() => navigate('/')} id="icon">
+          <div className="link" onClick={() => navigate('/')} id="icon">
             <Icon name={icon} />
           </div>
 
           <ul>
             <li>
-              <div onClick={() => navigate('/new/repo')}>
+              <div className="link" onClick={() => navigate('/new/repo')}>
                 <Icon name="plus" /> Add a Repo
               </div>
             </li>
             <li>
-              <div onClick={() => navigate('/demo')}>
+              <div className="link" onClick={() => navigate('/demo')}>
                 <Icon name="computer" /> See Examples
               </div>
             </li>

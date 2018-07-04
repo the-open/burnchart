@@ -21,7 +21,7 @@
       }
     }
 
-    a {
+    .link {
       color: mix($strong_color, #FFF, 50);
 
       &.active, &:hover {
@@ -44,7 +44,7 @@
       #hero {
         .content {
           .cta {
-            a {
+            .link {
               &.primary {
                 background: $strong_color;
               }
@@ -59,7 +59,7 @@
 
       #add {
         .form {
-          a {
+          .link {
             background: $strong_color;
           }
         }

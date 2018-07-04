@@ -50,7 +50,7 @@ class EditRepos extends Component {
           <tbody>{list}</tbody>
         </table>
         <div className="footer">
-          <a onClick={this.props.onToggleMode}>View Repos</a>
+          <div onClick={this.props.onToggleMode}>View Repos</div>
         </div>
       </div>
     );

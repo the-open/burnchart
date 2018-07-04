@@ -24,14 +24,11 @@ body {
   min-height: 100%;
 }
 
-a {
+a, .link {
   text-decoration: none;
   color: #aaafbf;
   cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+  display: inline-block;
 }
 
 h1, h2, h3, p {
@@ -129,6 +126,7 @@ ul {
 
 #head {
   height: 64px;
+  font-weight: bold;
 
   #icon {
     font-size: 26px;
@@ -183,20 +181,16 @@ ul {
     }
   }
 
-  a {
-    font-weight: bold;
-  }
-
   .right {
     float: right;
     margin-right: 20px;
-    line-height: 64px;
 
     .button {
       -webkit-border-radius: 2px;
       -moz-border-radius: 2px;
       border-radius: 2px;
       padding: 11px 20px;
+      cursor: pointer;
     }
   }
 }
@@ -289,7 +283,7 @@ ul {
           text-align: center;
           margin-top: 10px;
 
-          a {
+          .link {
             font-family: $serif_font;
             padding: 11px 20px;
             -webkit-border-radius: 2px;
@@ -316,7 +310,7 @@ ul {
         color: #3e4457;
       }
 
-      p {
+      .note {
         font-family: $serif_font;
         color: #b1b6c4;
         margin-top: 10px;
@@ -324,7 +318,7 @@ ul {
         text-align: justify;
         text-justify: inter-word;
 
-        a {
+        .link {
           color: #3e4457;
         }
       }
@@ -354,7 +348,7 @@ ul {
           box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
         }
 
-        a {
+        .link {
           margin-left: -2px;
           font-family: $serif_font;
           padding: 11px 20px;
@@ -425,7 +419,7 @@ ul {
             cursor: help;
           }
 
-          a.project {
+          .project {
             font-weight: bold;
           }
 
