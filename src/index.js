@@ -12,6 +12,8 @@ import App from './containers/App';
 // Get the config.
 import config from './config';
 
+import "./styles/main.css";
+
 // Parse the query string params overriding the config.
 // e.g. &chart[off_days][0]=0&chart[off_days][1]=6
 window.location.search && Object.assign(config, qs.parse(window.location.search.substring(1)));

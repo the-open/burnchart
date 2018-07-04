@@ -9,7 +9,7 @@ class Hero extends Component {
     const { navigate } = this.props;
 
     return (
-      <div id="hero">
+      <div id="hero" style={{ backgroundImage: `url('${process.env.PUBLIC_URL}/img/highway.jpg')` }}>
         <div className="content">
           <Icon name="direction" />
           <h2>See your repo progress</h2>

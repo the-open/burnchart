@@ -1,4 +1,5 @@
 import toRegex from "path-to-regexp";
+import history from "../history";
 
 import routes from "../routes";
 
@@ -42,7 +43,7 @@ const router = {
   },
   effects: {
     navigate(pathname, state) {
-      window.history.push(pathname);
+      history.push(pathname);
     }
   }
 };

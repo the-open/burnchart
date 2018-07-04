@@ -65,6 +65,8 @@ The main config file can be overriden by passing URL query string parameters. Th
 
 ## Development
 
+[Create React App](https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/template/README.md)
+
 To run your local version of the app, install all the NPM dependencies, watch the source files in one window, and start the static file server in the other in `--dev` mode.
 
 ```bash
