@@ -16,7 +16,7 @@ start-dev:
 	${BIN} --dev
 
 watch-js: build-js
-	${WATCHIFY} -e -s burnchart ./src/js/index.jsx -t babelify -o public/js/bundle.js -d -v
+	${WATCHIFY} -e -s burnchart ./src/js/index.js -t babelify -o public/js/bundle.js -d -v
 
 watch-css: build-css
 	${WATCH} "${MAKE} build-css" src/less
@@ -25,7 +25,7 @@ watch:
 	${MAKE} watch-js & ${MAKE} watch-css
 
 build-js:
-	${BROWSERIFY} -e -s burnchart ./src/js/index.jsx -t babelify > public/js/bundle.js
+	${BROWSERIFY} -e -s burnchart ./src/js/index.js -t babelify > public/js/bundle.js
 
 build-css:
 	${LESS} --js src/less/burnchart.less > public/css/bundle.css
@@ -39,6 +39,6 @@ minify-css:
 	${CLEANCSS} public/css/bundle.css > public/css/bundle.min.css
 
 test:
-	${MOCHA} ${MOCHA-OPTS} --reporter spec
+	${MOCHA} ${MOCHA-OPTS} --reporter spec test/repos.js
 
 .PHONY: test

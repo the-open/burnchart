@@ -2,42 +2,54 @@ import { assert } from 'chai';
 import path from 'path';
 import _ from 'lodash';
 import { noCallThru } from 'proxyquire'
-let proxy = noCallThru();
+import { init } from "@rematch/core";
 
-let request = {};
-let lscache = {
+const proxy = noCallThru();
+
+const request = {};
+const lscache = {
   get: () => [],
   set: () => {}
 };
 
 // Proxy the request module.
-let lib = path.resolve(__dirname, '../src/js/stores/reposStore.js');
+const lib = path.resolve(__dirname, '../src/js/reducers/repos.js');
 const repos = proxy(lib, {
   lscache, '../modules/github/request.js': request
 }).default;
 
 describe('repos', () => {
   it('initializes empty', done => {
-    assert.deepEqual(repos.get('list'), []);
+    const store = init({ models: { repos } });
+    const state = store.getState();
+
+    assert.deepEqual(state.repos.list, []);
+
     done();
   });
 
   it('sorts on new projects', done => {
-    repos.set({ 'list': [], 'index': [] });
+    const store = init({ models: { repos } });
 
     const repo = {
-      'owner': 'radekstepan',
-      'name': 'burnchart'
+      owner: 'radekstepan',
+      name: 'burnchart'
     };
     const project = {
-      'title': '1.0.0',
-      'stats': {}
+      title: '1.0.0',
+      columns: {
+        nodes: []
+      },
+      stats: {}
     };
 
-    repos.push('list', repo);
-    repos.addProject(repo, project);
+    await store.dispatch.repos.addProject({ repo, project });
 
-    assert.deepEqual(repos.get('index'), [[0, 0]]);
+    const state = store.getState();
+
+    console.warn(state);
+
+    assert.deepEqual(state.repos.index, [[0, 0]]);
 
     done();
   });

@@ -2,8 +2,6 @@ import _ from 'lodash';
 import superagent from 'superagent';
 import opa from 'object-path';
 
-import actions from '../../actions/appActions.js';
-
 import config from '../../../config.js';
 import graphqlQueries from './graphql.js';
 
