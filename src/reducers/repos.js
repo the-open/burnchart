@@ -24,311 +24,307 @@ const repos = {
     notification: null
   },
   reducers: {
-    // Push to the stack unless it exists already.
+    // Push to the stack.
     addRepo(state, repo) {
-      if (!_.find(state.list, repo)) {
-        state.list.push(Object.assign({}, repo, { projects: [] }));
-      }
-
+      // TODO ensure not a dupe?
+      opa.ensureExists(repo, 'projects', []);
+      state.list.push(repo);
       return state;
     },
 
-    // Cycle through repos sort order.
-    sortBy(state) {
-      const { sortBy, sortFns } = state;
+    // // Demonstration repos.
+    // demo(state) {
+    //   return Object.assign(state, {
+    //     list: [
+    //       { owner: 'd3', name: 'd3' },
+    //       { owner: 'radekstepan', name: 'disposable' },
+    //       { owner: 'rails', name: 'rails' },
+    //       { owner: 'twbs', name: 'bootstrap' }
+    //     ],
+    //     index: []
+    //   });
+    // },
 
-      let idx = 1 + sortFns.indexOf(sortBy);
-      if (idx === sortFns.length) idx = 0;
+    // // Talk about the stats of a project.
+    // notify(state, project) {
+    //   if (project.stats.isEmpty) {
+    //     const left = project.issues.open.size;
+    //     if (left) {
+    //       return Object.assign({}, state, {
+    //         notify: {
+    //           text: `No progress has been made, ${left} point${(left > 1) ? 's' : ''} left`,
+    //           system: true,
+    //           ttl: null
+    //         }
+    //       });
+    //     } else {
+    //       return Object.assign({}, state, {
+    //         notify: {
+    //           text: 'This project has no issues',
+    //           type: 'warn',
+    //           system: true,
+    //           ttl: null
+    //         }
+    //       });
+    //     }
+    //   }
 
-      return Object.assign({}, state, { sortBy: sortFns[idx] });
-    },
+    //   if (project.stats.isDone) {
+    //     return Object.assign({}, state, {
+    //       notify: {
+    //         text: 'This project is complete',
+    //         type: 'success'
+    //       }
+    //     });
+    //   }
 
-    // Demonstration repos.
-    demo(state) {
-      return Object.assign({}, state, {
-        list: [
-          { owner: 'd3', name: 'd3' },
-          { owner: 'radekstepan', name: 'disposable' },
-          { owner: 'rails', name: 'rails' },
-          { owner: 'twbs', name: 'bootstrap' }
-        ],
-        index: []
-      });
-    },
+    //   if (project.stats.isOverdue) {
+    //     return Object.assign({}, state, {
+    //       notify: {
+    //         text: 'This project is overdue',
+    //         type: 'warn'
+    //       }
+    //     });
+    //   }
+    // },
 
-    // Delete a repo.
-    delete(state, repo) {
-      const i = findIndex(state.list, repo);
-      // Delete the repo.
-      state.list.splice(i, 1);
-      // And the index, sorting again.
-      state.index = [];
-      return this.sort(state);
-    },
+    // // Save an error from loading projects.
+    // // TODO: clear these when we fetch all repos anew.
+    // saveError(state, repo, err, say=false) {
+    //   const idx = findIdx(state.list, repo);
+    //   if (idx >= 0) {
+    //     state.list[idx].errors.push(err);
+    //   } else {
+    //     // Create the stub repo behind the scenes.
+    //     state.list.push(Object.assign({}, repo, { errors: [ err ] }));
+    //   }
 
-    // Talk about the stats of a project.
-    notify(state, project) {
-      if (project.stats.isEmpty) {
-        const left = project.issues.open.size;
-        if (left) {
-          return Object.assign({}, state, {
-            notify: {
-              text: `No progress has been made, ${left} point${(left > 1) ? 's' : ''} left`,
-              system: true,
-              ttl: null
-            }
-          });
-        } else {
-          return Object.assign({}, state, {
-            notify: {
-              text: 'This project has no issues',
-              type: 'warn',
-              system: true,
-              ttl: null
-            }
-          });
-        }
-      }
+    //   // Notify?
+    //   if (say) {
+    //     return Object.assign({}, state, {
+    //       notify: {
+    //         text: err,
+    //         type: 'alert',
+    //         system: true,
+    //         ttl: null
+    //       }
+    //     });
+    //   }
 
-      if (project.stats.isDone) {
-        return Object.assign({}, state, {
-          notify: {
-            text: 'This project is complete',
-            type: 'success'
-          }
-        });
-      }
-
-      if (project.stats.isOverdue) {
-        return Object.assign({}, state, {
-          notify: {
-            text: 'This project is overdue',
-            type: 'warn'
-          }
-        });
-      }
-    },
-
-    // Save an error from loading projects.
-    // TODO: clear these when we fetch all repos anew.
-    saveError(state, repo, err, say=false) {
-      const idx = findIndex(state.list, repo);
-      if (idx >= 0) {
-        state.list[idx].errors.push(err);
-      } else {
-        // Create the stub repo behind the scenes.
-        state.list.push(Object.assign({}, repo, { errors: [ err ] }));
-      }
-
-      // Notify?
-      if (say) {
-        return Object.assign({}, state, {
-          notify: {
-            text: err,
-            type: 'alert',
-            system: true,
-            ttl: null
-          }
-        });
-      }
-
-      return state;
-    },
+    //   return state;
+    // },
 
     // Sort repos (update the index). Can pass reference to the
     //  repo and project index in the stack.
     sort(state, ref, data) {
       let idx;
       // Get the existing index.
-      const { index } = state;
+      let { index } = state;
 
       // Index one project in an already sorted index.
       if (ref) {
-        idx = sortedIndex(index, data, comparator());
+        idx = sortedIndex(index, data, comparator(state));
         index.splice(idx, 0, ref);
       // Sort them all.
       } else {
         const { list } = state;
-        for (let i of list) {
-          const r = list[i];
+        index = [];
+        for (let i = 0; i < list.length; i++) {
+          const repo = list[i];
           // TODO: need to show repos that failed too...
-          if (r.projects == null) continue;
+          if (!repo.projects.length) continue;
           // Walk the projects.
-          for (let j of r.projects) {
-            const p = r.projects[j];
+          for (let j = 0; j < repo.projects.length; j++) {
+            const project = repo.projects[j];
             // Run a comparator here inserting into index.
-            idx = sortedIndex(index, [ r, p ], comparator());
+            idx = sortedIndex(index, [ repo, project ], comparator(state));
             index.splice(idx, 0, [ i, j ]);
           }
         }
       }
 
-      return Object.assign({}, state, { index })
+      return Object.assign(state, { index });
     }
   },
   effects: {
+    // Sort by function or cycle to the next one.
+    sortBy(name, state) {
+      const { repos } = state;
+      const { sortBy, sortFns } = repos;
+
+      // TODO validate.
+      if (name) {
+        repos.sortBy = name;
+      } else {
+        let idx = 1 + sortFns.indexOf(sortBy);
+        if (idx === sortFns.length) idx = 0;
+  
+        repos.sortBy = sortFns[idx];  
+      }
+
+      return this.sort();
+    },
+
+    // Delete a repo.
+    deleteRepo(repo, state) {
+      const { repos } = state;
+
+      const i = repos.list.findIndex(findRepo(repo));
+      // Delete the repo.
+      repos.list.splice(i, 1);
+      // And the index, sorting again.
+      return this.sort();
+    },
+
     // Add a project for a repo.
     addProject({ repo, project }, state) {
+      if (typeof project.number === 'undefined') throw new Error('Project number not provided');
+
+      opa.ensureExists(project, 'columns.nodes', []);
+
       // Parse the issues.
       project.issues = issues.fromBoards(project.columns.nodes);
 
       // Add in the stats.
-      _.extend(project, { stats: stats(project) });
-
-      // Notify?
-      // say && this.notify(project);
+      project.stats = stats(project);
 
       // If repo hasn't been found, add it behind the scenes.
-      let i = findIndex(state.repos.list, repo);
+      let i = state.repos.list.findIndex(findRepo(repo));
       if (i === -1) {
         this.addRepo(repo);
-        // TODO fix
         i = state.repos.list.length - 1;
       }
 
       // Does the project exist already?
-      let j;
       const { projects } = state.repos.list[i];
-      if (projects) {
-        j = _.findIndex(projects, { number: project.number });
-        // Just make an update then.
-        if (j !== -1) {
-          state.repos.list[i].projects[j] = project;
-          return state;
-        }
-      }
-
-      // Push the project and return the index.
-      j = state.repos.list[i].projects.push(project);
-
-      // TODO Now index this project.
-      // this.sort([ i, j ], [ repo, project ]);
-
-      return state;
-    },
-
-    // Persist repos in local storage (sans projects and issues).
-    store(props, state) {
-      if (process.browser) {
-        lscache.set('repos', _.pluckMany(state.list, [ 'owner', 'name' ]));
-      }
-    },
-
-    async reposLoad(props, user, state) {
-      let repos = state.list;
-
-      // Reset first.
-      repos = _.each(repos, r => delete r.errors);
-
-      // TODO: make sure we have user credentials first
-
-      if (props) {
-        if ('project' in props) {
-          // For a single project.
-          this.getProject(user, {
-            owner: props.owner,
-            name: props.name
-          }, { number: parseInt(props.project, 10) }, true); // notify as well
-        } else {
-          // For a single repo.
-          _.find(state.list, obj => {
-            if (props.owner === obj.owner && props.name === obj.name) {
-              props = obj; // expand by saved properties
-              return true;
-            };
-            return false;
-          });
-          this.getRepo(user, props);
-        }
+      let j = projects.findIndex(findProject(project));
+      if (j === -1) {
+        projects.push(project);
+        j = projects.length - 1;
       } else {
-        // For all repos.
-        _.each(repos, r => this.getRepo(user, r));
-      }
-    },
-
-    // Search for repos.
-    async searchRepos(text, state) {
-      if (!text || !text.length) return;
-
-      // Can we get the owner (and name) from the text?
-      let owner, name;
-      if (/\//.test(text)) {
-        [ owner, name ] = text.split('/');
-      } else {
-        text = new RegExp(`^${text}`, 'i');
+        projects[j] = project;
       }
 
-      // No owner means nothing to go on.
-      if (!owner) return;
-
-      // Make the request.
-      const res = await request.repos(state.account.user, owner)
-
-      const suggestions = (res.filter(repo => {
-        // Remove repos with no issues.
-        if (!repo.has_issues) return;
-
-        // Remove repos we have already.
-        if (this.has(repo.owner.login, repo.name)) return;
-
-        // Match on owner or name.
-        if (owner) {
-          if (!new RegExp(`^${owner}`, 'i').test(repo.owner.login)) return;
-          if (!name || new RegExp(`^${name}`, 'i').test(repo.name)) return true;
-        }
-        return text.test(repo.owner.login) || text.test(repo.name);
-      }))
-      .map(({ full_name }) => full_name);
-
-      return Object.assign({}, state, { suggestions });
+      // Now index this project.
+      return this.sort([ i, j ], [ repo, project ]);
     },
 
-    // Fetch projects in a repo.
-    async getRepo(user, r, say) {
-      request.allProjects(user, r, this.cb((err, projects) => { // async
-        // Save the error if repo does not exist.
-        if (err) return this.saveError(r, err);
-        // Get the issues.
-        projects.forEach(p => {
-          this.getProject(user, r, p, say);
-        });
-      }));
-    },
+    // // Persist repos in local storage (sans projects and issues).
+    // store(props, state) {
+    //   if (process.browser) {
+    //     lscache.set('repos', _.pluckMany(state.list, [ 'owner', 'name' ]));
+    //   }
+    // },
 
-    // Fetch a single project.
-    async getProject(user, r, p, say) {
-      request.oneProject(user, {
-        'owner': r.owner,
-        'name': r.name,
-        'project_number': p.number
-      }, this.cb((err, project) => { // async
-        // Save the error if repo does not exist.
-        if (err) return this.saveError(r, err, say);
-        // Save the projet.
-        this.addProject(r, project, say);
-      }));
-    }
+    // async reposLoad(props, user, state) {
+    //   let repos = state.list;
+
+    //   // Reset first.
+    //   repos = _.each(repos, r => delete r.errors);
+
+    //   // TODO: make sure we have user credentials first
+
+    //   if (props) {
+    //     if ('project' in props) {
+    //       // For a single project.
+    //       this.getProject(user, {
+    //         owner: props.owner,
+    //         name: props.name
+    //       }, { number: parseInt(props.project, 10) }, true); // notify as well
+    //     } else {
+    //       // For a single repo.
+    //       _.find(state.list, obj => {
+    //         if (props.owner === obj.owner && props.name === obj.name) {
+    //           props = obj; // expand by saved properties
+    //           return true;
+    //         };
+    //         return false;
+    //       });
+    //       this.getRepo(user, props);
+    //     }
+    //   } else {
+    //     // For all repos.
+    //     _.each(repos, r => this.getRepo(user, r));
+    //   }
+    // },
+
+    // // Search for repos.
+    // async searchRepos(text, state) {
+    //   if (!text || !text.length) return;
+
+    //   // Can we get the owner (and name) from the text?
+    //   let owner, name;
+    //   if (/\//.test(text)) {
+    //     [ owner, name ] = text.split('/');
+    //   } else {
+    //     text = new RegExp(`^${text}`, 'i');
+    //   }
+
+    //   // No owner means nothing to go on.
+    //   if (!owner) return;
+
+    //   // Make the request.
+    //   const res = await request.repos(state.account.user, owner)
+
+    //   const suggestions = (res.filter(repo => {
+    //     // Remove repos with no issues.
+    //     if (!repo.has_issues) return;
+
+    //     // Remove repos we have already.
+    //     if (this.has(repo.owner.login, repo.name)) return;
+
+    //     // Match on owner or name.
+    //     if (owner) {
+    //       if (!new RegExp(`^${owner}`, 'i').test(repo.owner.login)) return;
+    //       if (!name || new RegExp(`^${name}`, 'i').test(repo.name)) return true;
+    //     }
+    //     return text.test(repo.owner.login) || text.test(repo.name);
+    //   }))
+    //   .map(({ full_name }) => full_name);
+
+    //   return Object.assign({}, state, { suggestions });
+    // },
+
+    // // Fetch projects in a repo.
+    // async getRepo(user, r, say) {
+    //   request.allProjects(user, r, this.cb((err, projects) => { // async
+    //     // Save the error if repo does not exist.
+    //     if (err) return this.saveError(r, err);
+    //     // Get the issues.
+    //     projects.forEach(p => {
+    //       this.getProject(user, r, p, say);
+    //     });
+    //   }));
+    // },
+
+    // // Fetch a single project.
+    // async getProject(user, r, p, say) {
+    //   request.oneProject(user, {
+    //     'owner': r.owner,
+    //     'name': r.name,
+    //     'project_number': p.number
+    //   }, this.cb((err, project) => { // async
+    //     // Save the error if repo does not exist.
+    //     if (err) return this.saveError(r, err, say);
+    //     // Save the projet.
+    //     this.addProject(r, project, say);
+    //   }));
+    // }
   }
 };
 
 // Return a sort order comparator.
-const comparator = () => {
-  let { list, sortBy } = this.get();
-
+const comparator = ({ list, sortBy }) => {
   // Convert existing index into actual repo project.
-  let deIdx = (fn) => {
-    return ([ i, j ], ...rest) => {
-      return fn.apply(this, [ [ list[i], list[i].projects[j] ] ].concat(rest));
-    };
-  };
+  const deIdx = fn =>
+    ([ i, j ], ...rest) =>
+      fn.apply(this, [ [ list[i], list[i].projects[j] ] ].concat(rest));
 
   // Set default fields.
-  let defaults = (arr, hash) => {
+  const defaults = (arr, obj) => {
     for (let item of arr) {
-      for (let key in hash) {
-        if (!opa.has(item, key)) {
-          opa.set(item, key, hash[key]);
-        }
+      for (let key in obj) {
+        opa.ensureExists(item, key, obj[key]);
       }
     }
   };
@@ -349,9 +345,9 @@ const comparator = () => {
         // Projects with no deadline are always at the "beginning".
         defaults([ aP, bP ], { 'stats.progress.time': 0, 'stats.days': 1e3 });
         // % difference in progress times the number of days ahead or behind.
-        let [ $a, $b ] = _.map([ aP, bP ], ({ stats }) => {
-          return (stats.progress.points - stats.progress.time) * stats.days;
-        });
+        const [ $a, $b ] = [ aP, bP ].map(({ stats }) =>
+          (stats.progress.points - stats.progress.time) * stats.days
+        );
 
         return $b - $a;
       });
@@ -376,19 +372,11 @@ const comparator = () => {
 
     // The "whatever" sort order...
     default:
-      return () => { return 0; }
+      return () => 0;
   }
 };
 
-// Find index of a repo.
-const findIndex = (list, { owner, name }) => _.findIndex(list, { owner, name });
-
-// Do we have this repo? Case-insensitive.
-const has = (o, n) => {
-  o = o.toUpperCase() ; n = n.toUpperCase();
-  return !!_.find(this.get('list'), ({ owner, name }) => {
-    return o == owner.toUpperCase() && n == name.toUpperCase();
-  });
-}
+const findRepo = a => b => a.owner === b.owner && a.name === b.name;
+const findProject = a => b => a.number === b.number;
 
 export default repos;
