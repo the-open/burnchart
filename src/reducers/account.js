@@ -1,3 +1,4 @@
+import lscache from 'lscache';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 
@@ -11,30 +12,41 @@ const account = {
   reducers: {
     save(state, user) {
       return Object.assign({}, state, { user, ready: true });
-    },
-    signOut(props, state) {
-      this.save({});
     }
   },
   effects: {
-    get(props, state) {
-      // const user = await db.account.get();
-      this.save({ username: 'radek' });
+    async checkAuth() {
+      const accessToken = lscache.get('accessToken');
+      const user = await new Promise(resolve =>
+        firebase.auth().onAuthStateChanged(resolve)
+      );
+      if (!user || !accessToken) return this.save({});
+
+      const json = firebase.auth().toJSON();
+      return this.save({
+        accessToken,
+        profile: json.currentUser.providerData[0]
+      });
     },
-    async signIn(props, state) {
+
+    async signIn() {
       const provider = new firebase.auth.GithubAuthProvider();
       // See https://developer.github.com/v3/oauth/#scopes
       provider.addScope('repo');
 
-      try {
-        const res = await client.auth().signInWithPopup(provider);
-        this.save({
-          github: res.user.providerData[0],
-          credential: res.credential
-        });
-      } catch(err) {
-        // TODO Notify on bad auth.
-      }
+      const res = await client.auth().signInWithPopup(provider);
+      const { accessToken } = res.credential;
+      lscache.set('accessToken', accessToken);
+      return this.save({
+        accessToken,
+        profile: res.user.providerData[0]
+      });
+    },
+
+    signOut() {
+      firebase.auth().signOut();
+      lscache.remove('accessToken');
+      this.save({});
     }
   }
 };

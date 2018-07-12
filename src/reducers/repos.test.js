@@ -214,37 +214,6 @@ describe('repos model', () => {
     expect(store.getState().repos.index).toEqual([[0, 2], [0, 1], [0, 0]]);
   });
 
-  // it('search', done => {
-  //   repos.set({ 'list': [
-  //     { 'owner': 'radek', 'name': 'A' }
-  //   ], 'index': [], 'sortBy': 'name', 'user': null });
-
-  //   // Skip search.
-  //   request.repos = (user, owner, cb) => assert(false);
-  //   repos.onReposSearch();
-
-  //   // Search on text.
-  //   request.repos = (user, owner, cb) => assert(owner == undefined);
-  //   repos.onReposSearch('radek');
-
-  //   // Search on owner.
-  //   request.repos = (user, owner, cb) => assert(owner == 'radek');
-  //   repos.onReposSearch('radek/project');
-
-  //   request.repos = (user, owner, cb) => {
-  //     cb(null, [
-  //       { 'has_issues': true, 'owner': { 'login': 'Radek' }, 'name': 'A', 'full_name': 'Radek/A' }, // exists
-  //       { 'has_issues': true, 'owner': { 'login': 'radek' }, 'name': 'aA', 'full_name': 'radek/aA' }, // ok
-  //       { 'has_issues': true, 'owner': { 'login': 'a' }, 'name': 'A', 'full_name': 'a/A' }, // wrong owner
-  //       { 'has_issues': false, 'owner': { 'login': 'radek' }, 'name': 'aaa', 'full_name': 'radek/aaa' } // no issues
-  //     ]);
-  //   };
-  //   projects.onReposSearch('radek/a');
-  //   assert.deepEqual(repos.get('suggestions'), [ 'radek/aA' ]);
-
-  //   done();
-  // });
-
   it('delete', () => {
     const repos = require('./repos').default;
     const store = init({ models: { repos } });

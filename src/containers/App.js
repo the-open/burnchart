@@ -8,8 +8,8 @@ class App extends Component {
   componentDidMount() {
     // Watch route changes (allows back-button etc.).
     history.listen(location => this.props.route(location.pathname));
-    // Check user account.
-    this.props.getAccount();
+    // Get currently signed-in user.
+    this.props.checkAuth();
   }
 
   render() {
@@ -24,7 +24,7 @@ const mapState = state => ({
 
 const mapDispatch = dispatch => ({
   route: dispatch.router.route,
-  getAccount: dispatch.account.get
+  checkAuth: dispatch.account.checkAuth
 });
 
 export default connect(mapState, mapDispatch)(App);

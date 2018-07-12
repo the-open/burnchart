@@ -19,7 +19,7 @@ class Hero extends Component {
             <div onClick={() => navigate('/new/repo')} className="link primary">
               <Icon name="plus" /> Add a Repo
             </div>
-            <div onClick={() => navigate('/demo')} className="link secondary">
+            <div onClick={this.props.demo} className="link secondary">
               <Icon name="computer" /> See Examples
             </div>
           </div>
@@ -30,7 +30,7 @@ class Hero extends Component {
 }
 
 const mapDispatch = dispatch => ({
-  navigate: dispatch.router.navigate
+  demo: dispatch.repos.demo
 });
 
 export default connect(null, mapDispatch)(Hero);

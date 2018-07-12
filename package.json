@@ -31,7 +31,6 @@
     "d3-tip": "0.6.7",
     "firebase": "5.2.0",
     "history": "4.7.2",
-    "immutable": "3.8.2",
     "lscache": "1.0.5",
     "marked": "0.3.19",
     "moment": "2.22.1",

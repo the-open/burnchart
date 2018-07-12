@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import lscache from 'lscache';
 import opa from 'object-path';
 import semver from 'semver';
@@ -24,26 +23,17 @@ const repos = {
     notification: null
   },
   reducers: {
-    // Push to the stack.
+    // Push to the stack if it doesn't exist already.
     addRepo(state, repo) {
       // TODO ensure not a dupe?
       opa.ensureExists(repo, 'projects', []);
-      state.list.push(repo);
+
+      if (state.list.findIndex(findRepo(repo)) === -1) {
+        state.list.push(repo);
+        store(state.list);
+      }
       return state;
     },
-
-    // // Demonstration repos.
-    // demo(state) {
-    //   return Object.assign(state, {
-    //     list: [
-    //       { owner: 'd3', name: 'd3' },
-    //       { owner: 'radekstepan', name: 'disposable' },
-    //       { owner: 'rails', name: 'rails' },
-    //       { owner: 'twbs', name: 'bootstrap' }
-    //     ],
-    //     index: []
-    //   });
-    // },
 
     // // Talk about the stats of a project.
     // notify(state, project) {
@@ -143,10 +133,20 @@ const repos = {
         }
       }
 
-      return Object.assign(state, { index });
+      return Object.assign({}, state, { index });
     }
   },
   effects: {
+    // Demonstration repos.
+    async demo() {
+      return await [
+        { owner: 'd3', name: 'd3' },
+        { owner: 'radekstepan', name: 'disposable' },
+        { owner: 'rails', name: 'rails' },
+        { owner: 'twbs', name: 'bootstrap' }
+      ].map(async r => await this.getRepo(r));
+    },
+
     // Sort by function or cycle to the next one.
     sortBy(name, state) {
       const { repos } = state;
@@ -172,6 +172,9 @@ const repos = {
       const i = repos.list.findIndex(findRepo(repo));
       // Delete the repo.
       repos.list.splice(i, 1);
+      
+      store(repos.list);
+
       // And the index, sorting again.
       return this.sort();
     },
@@ -205,111 +208,104 @@ const repos = {
         projects[j] = project;
       }
 
+      store(state.repos.list);
+
       // Now index this project.
       return this.sort([ i, j ], [ repo, project ]);
     },
 
-    // // Persist repos in local storage (sans projects and issues).
-    // store(props, state) {
-    //   if (process.browser) {
-    //     lscache.set('repos', _.pluckMany(state.list, [ 'owner', 'name' ]));
-    //   }
-    // },
+    async getAll(props, state) {
+      const { list } = state.repos;
 
-    // async reposLoad(props, user, state) {
-    //   let repos = state.list;
+      // Reset first.
+      list.forEach(r => delete r.errors);
 
-    //   // Reset first.
-    //   repos = _.each(repos, r => delete r.errors);
+      if (props) {
+        if ('project' in props) {
+          // For a single project.
+          return this.getProject({
+            owner: props.owner,
+            name: props.name
+          }, { number: parseInt(props.project, 10) });
+        }
 
-    //   // TODO: make sure we have user credentials first
+        // For a single repo.
+        const repo = list.find(r => {
+          if (props.owner === r.owner && props.name === r.name) {
+            return r;
+          };
+          return false;
+        });
+        return this.getRepo(repo);
+      }
+      
+      // For all repos.
+      return await list.map(async r => await this.getRepo(r));
+    },
 
-    //   if (props) {
-    //     if ('project' in props) {
-    //       // For a single project.
-    //       this.getProject(user, {
-    //         owner: props.owner,
-    //         name: props.name
-    //       }, { number: parseInt(props.project, 10) }, true); // notify as well
-    //     } else {
-    //       // For a single repo.
-    //       _.find(state.list, obj => {
-    //         if (props.owner === obj.owner && props.name === obj.name) {
-    //           props = obj; // expand by saved properties
-    //           return true;
-    //         };
-    //         return false;
-    //       });
-    //       this.getRepo(user, props);
-    //     }
-    //   } else {
-    //     // For all repos.
-    //     _.each(repos, r => this.getRepo(user, r));
-    //   }
-    // },
+    // Fetch a single project.
+    async getProject(args, state) {
+      const { user } = state.account;
 
-    // // Search for repos.
-    // async searchRepos(text, state) {
-    //   if (!text || !text.length) return;
+      const project = await request.oneProject(user, {
+        owner: args.repo.owner,
+        name: args.repo.name,
+        project_number: args.project.number
+      });
+      return this.addProject({ project, repo: args.repo });
+    },
 
-    //   // Can we get the owner (and name) from the text?
-    //   let owner, name;
-    //   if (/\//.test(text)) {
-    //     [ owner, name ] = text.split('/');
-    //   } else {
-    //     text = new RegExp(`^${text}`, 'i');
-    //   }
+    // Fetch projects in a repo.
+    async getRepo(repo, state) {
+      const { user } = state.account;
 
-    //   // No owner means nothing to go on.
-    //   if (!owner) return;
+      let projects;
+      try {
+        projects = await request.allProjects(user, repo);
+      } catch(err) {
+        console.warn(err);
+      }
+      return await projects.map(async project =>
+        await this.getProject({ repo, project })
+      );
+    },
 
-    //   // Make the request.
-    //   const res = await request.repos(state.account.user, owner)
+    // Search repos.
+    async searchRepos(text, state) {
+      if (!text || !text.length) return;
 
-    //   const suggestions = (res.filter(repo => {
-    //     // Remove repos with no issues.
-    //     if (!repo.has_issues) return;
+      // Can we get the owner (and name) from the text?
+      let owner, name;
+      if (/\//.test(text)) {
+        [ owner, name ] = text.split('/');
+      } else {
+        text = new RegExp(`^${text}`, 'i');
+      }
 
-    //     // Remove repos we have already.
-    //     if (this.has(repo.owner.login, repo.name)) return;
+      // No owner means nothing to go on.
+      if (!owner) return;
 
-    //     // Match on owner or name.
-    //     if (owner) {
-    //       if (!new RegExp(`^${owner}`, 'i').test(repo.owner.login)) return;
-    //       if (!name || new RegExp(`^${name}`, 'i').test(repo.name)) return true;
-    //     }
-    //     return text.test(repo.owner.login) || text.test(repo.name);
-    //   }))
-    //   .map(({ full_name }) => full_name);
+      // Make the request.
+      const res = await request.repos(state.account.user, owner)
 
-    //   return Object.assign({}, state, { suggestions });
-    // },
+      const suggestions = (res.filter(repo => {
+        // Remove repos with no issues.
+        if (!repo.has_issues) return false;
 
-    // // Fetch projects in a repo.
-    // async getRepo(user, r, say) {
-    //   request.allProjects(user, r, this.cb((err, projects) => { // async
-    //     // Save the error if repo does not exist.
-    //     if (err) return this.saveError(r, err);
-    //     // Get the issues.
-    //     projects.forEach(p => {
-    //       this.getProject(user, r, p, say);
-    //     });
-    //   }));
-    // },
+        // Remove repos we have already.
+        if (this.has(repo.owner.login, repo.name)) return false;
 
-    // // Fetch a single project.
-    // async getProject(user, r, p, say) {
-    //   request.oneProject(user, {
-    //     'owner': r.owner,
-    //     'name': r.name,
-    //     'project_number': p.number
-    //   }, this.cb((err, project) => { // async
-    //     // Save the error if repo does not exist.
-    //     if (err) return this.saveError(r, err, say);
-    //     // Save the projet.
-    //     this.addProject(r, project, say);
-    //   }));
-    // }
+        // Match on owner or name.
+        if (owner) {
+          if (!new RegExp(`^${owner}`, 'i').test(repo.owner.login)) return false;
+          if (!name || new RegExp(`^${name}`, 'i').test(repo.name)) return true;
+        }
+        return text.test(repo.owner.login) || text.test(repo.name);
+      }))
+      .map(({ full_name }) => full_name);
+
+      return Object.assign({}, state, { suggestions });
+    },
   }
 };
 
@@ -378,5 +374,10 @@ const comparator = ({ list, sortBy }) => {
 
 const findRepo = a => b => a.owner === b.owner && a.name === b.name;
 const findProject = a => b => a.number === b.number;
+
+// Persist repos in local storage (sans projects and issues).
+const store = repos =>
+  process.browser &&
+    lscache.set('repos', repos.map(r => ({ owner: r.owner, name: r.name })));
 
 export default repos;

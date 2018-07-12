@@ -5,46 +5,24 @@ import Notify from './Notify';
 import Icon from './Icon';
 
 class Header extends Component {
-  constructor() {
-    super();
-
-    this.onSignIn = this.onSignIn.bind(this);
-    this.onSignOut = this.onSignOut.bind(this);
-    this.onDemo = this.onDemo.bind(this);
-  }
-
-  // Sign user in.
-  onSignIn() {
-    this.props.signIn();
-  }
-
-  // Sign user out.
-  onSignOut() {
-    this.props.signOut();
-  }
-
-  // Add example repos.
-  onDemo() {
-    this.props.demo();
-  }
 
   render() {
     const { repos, account, navigate } = this.props;
 
     // Sign-in/out.
     let user;
-    if (account.user && account.user.github) {
+    if (account.user && account.user.profile) {
       user = (
         <div className="right">
-          <div onClick={this.onSignOut}>
-            <Icon name="signout" /> Sign Out {account.user.github.displayName}
+          <div onClick={this.props.signOut}>
+            <Icon name="signout" /> Sign Out {account.user.profile.displayName}
           </div>
         </div>
       );
     } else {
       user = (
         <div className="right">
-          <div className="button" onClick={this.onSignIn}>
+          <div className="button" onClick={this.props.signIn}>
             <Icon name="github"/> Sign In
           </div>
         </div>
@@ -71,7 +49,7 @@ class Header extends Component {
               </div>
             </li>
             <li>
-              <div className="link" onClick={() => navigate('/demo')}>
+              <div className="link" onClick={this.props.demo}>
                 <Icon name="computer" /> See Examples
               </div>
             </li>

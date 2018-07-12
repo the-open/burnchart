@@ -7,7 +7,7 @@ import graphqlQueries from './graphql';
 
 // Custom JSON parser.
 superagent.parse = {
-  'application/json': (res) => {
+  'application/json': res => {
     try {
       return JSON.parse(res);
     } catch(err) {
@@ -18,9 +18,9 @@ superagent.parse = {
 
 // Default args.
 const defaults = {
-  'github': {
-    'host': 'api.github.com',
-    'protocol': 'https'
+  github: {
+    host: 'api.github.com',
+    protocol: 'https'
   }
 };
 
@@ -28,37 +28,31 @@ const defaults = {
 export default {
 
   // Get a repo.
-  repo: (user, { owner, name }, cb) => {
-    const token = (user && user.credential != null) ? user.credential.accessToken : null;
+  repo: (user, { owner, name }) => {
+    const token = (user && user.accessToken != null) ? user.accessToken : null;
     const data = _.defaults({
       path: `/repos/${owner}/${name}`,
       headers: headers(token)
     }, defaults.github);
 
-    request(data, cb);
+    return request(data);
   },
 
   // Get repos user has access to or are public to owner.
   repos: (user, ...args) => {
-    let owner, cb;
-    if (args.length === 2) {
-      [ owner, cb ] = args;
-    } else { // assumes 1
-      [ cb ]  = args;
-    }
+    const owner = args.length ? args[0] : null; // assumes 1
 
-    const token = (user && user.credential != null) ? user.credential.accessToken : null;
+    const token = (user && user.accessToken != null) ? user.accessToken : null;
     const data = _.defaults({
       path: owner ? `/users/${owner}/repos` : '/user/repos',
       headers: headers(token)
     }, defaults.github);
 
-    request(data, cb);
+    return request(data);
   },
 
-  allProjects: (user, { owner, name }, cb) => {
-    let token = (user && user.credential != null) ? user.credential.accessToken : null;
-
+  async allProjects(user, { owner, name }) {
+    const token = (user && user.accessToken != null) ? user.accessToken : null;
     let data = _.defaults({
       path: '/graphql',
       body: JSON.stringify(name ? {
@@ -79,13 +73,12 @@ export default {
       method: 'POST',
     }, defaults.github);
 
-    request(data, (err, res) => {
-      cb(err, opa.get(res, 'data.repository.projects.nodes'));
-    });
+    const res = await request(data);
+    return opa.get(res, 'data.repository.projects.nodes');
   },
 
-  oneProject: (user, { owner, name, project_number }, cb) => {
-    let token = (user && user.credential != null) ? user.credential.accessToken : null;
+  async oneProject(user, { owner, name, project_number }) {
+    const token = (user && user.accessToken != null) ? user.accessToken : null;
 
     let data = _.defaults({
       path: '/graphql',
@@ -109,59 +102,54 @@ export default {
       method: 'POST',
     }, defaults.github);
 
-    request(data, (err, res) => {
-      cb(err, opa.get(res, 'data.repository.project'));
-    });
+    const res = await request(data);
+    return opa.get(res, 'data.repository.project');
   }
 };
 
 // Make a request using SuperAgent.
-const request = ({ protocol, host, method, path, query, headers, body }, cb) => {
-  let exited = false;
-
+const request = ({ protocol, host, method, path, query, headers, body }) => {
   // Make the query params.
   let q = '';
   if (query) {
-    q = '?' + _.map(query, (v, k) => { return `${k}=${v}`; }).join('&');
+    q = '?' + query.map((v, k) => `${k}=${v}`).join('&');
   }
 
   // The URI.
   const url = `${protocol}://${host}${path}${q}`;
-  let req = method === 'POST' ? superagent.post(url) : superagent.get(url);
+  const req = method === 'POST' ? superagent.post(url) : superagent.get(url);
   // Add headers.
-  _.each(headers, (v, k) => { req.set(k, v); });
+  _.each(headers, (v, k) => req.set(k, v));
 
   // Timeout for requests that do not finish... see #32.
   let ms = config.request.timeout;
   ms = (_.isString(ms)) ? parseInt(ms, 10) : ms;
-  let timeout = setTimeout(() => {
-    exited = true;
-    cb('Request has timed out');
-  }, ms);
-
-  if (body) {
-    req.send(body);
-  }
-
-  // Send.
-  req.end((err, data) => {
-    // Arrived too late.
-    if (exited) return;
-    // All fine.
-    exited = true;
-    clearTimeout(timeout);
-    // Actually process the response.
-    response(err, data, cb);
+  
+  return new Promise((resolve, reject) => {
+    let exited = false;
+    const timeout = setTimeout(() => {
+      exited = true;
+      reject('Request has timed out');
+    }, ms);
+  
+    body && req.send(body);
+  
+    // Send.
+    req.end((err, data) => {
+      // Arrived too late.
+      if (exited) return;
+      // All fine.
+      exited = true;
+      clearTimeout(timeout);
+  
+      // Actually process the response.
+      if (err) return reject(error(data ? data.body : err));
+      // 2xx?
+      if (data.statusType !== 2) return reject(error(data.body));
+      // All good.
+      resolve(data.body);
+    });
   });
-};
-
-// How do we respond to a response?
-const response = (err, data, cb) => {
-  if (err) return cb(error(data ? data.body : err));
-  // 2xx?
-  if (data.statusType !== 2) return cb(error(data.body));
-  // All good.
-  cb(null, data.body);
 };
 
 // Give us headers.
@@ -180,7 +168,7 @@ const headers = (token) => {
 };
 
 // Parse an error.
-const error = (err) => {
+const error = err => {
   let text;
   switch (false) {
     case !_.isString(err):
