@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
-import _ from 'lodash';
 import cls from 'classnames';
 
 import format from '../modules/format.js';
@@ -22,27 +21,24 @@ class Projects extends Component {
   }
 
   onRefresh() {
-    this.props.loadRepos();
+    this.props.getRepos(null);
   }
 
   render() {
     const { repos, repo, navigate } = this.props;
 
     // Show the repos with errors first.
-    const errors = _(repos.list)
-    .filter('errors')
-    .map((repo, i) => {
-      const text = repo.errors.join('\n');
-      return (
+    const errors = (repos.list.filter(r => r.errors)).map((repo, i) =>
+      (
         <tr key={`err-${i}`}>
           <td colSpan="3">
             <div className="repo">{repo.owner}/{repo.name}
-              <span className="error" title={text}><Icon name="warning"/></span>
+              <span className="error" title={repo.errors.join('\n')}><Icon name="warning"/></span>
             </div>
           </td>
         </tr>
-      );
-    }).value();
+      )
+    );
 
     // Now for the list of projects, index sorted.
     const list = [];
@@ -54,7 +50,7 @@ class Projects extends Component {
       if (!(!repo || (repo.owner === owner && repo.name === name))) return;
 
       list.push(
-        <tr className={cls({ done: project.stats.isDone })} key={`${rI}-${pI}`}>
+        <tr className={cls({ done: project.stats.isDone })} key={project.key}>
           <td>
             <div
               onClick={() => navigate(`/${owner}/${name}`)}
@@ -106,33 +102,33 @@ class Projects extends Component {
           <div className="footer" />
         </div>
       );
-    } else {
-      // List of repos and their projects.
-      return (
-        <div id="repos">
-          <div className="header">
-            <div className="sort" onClick={this.onSort}><Icon name="sort"/> Sorted by {repos.sortBy}</div>
-            <h2>Repos</h2>
-          </div>
-          <table>
-            <tbody>
-              {errors}
-              {list}
-            </tbody>
-          </table>
-          <div className="footer">
-            <div onClick={this.props.onToggleMode}>Edit Repos</div>
-            <div onClick={this.onRefresh}>Refresh Repos</div>
-          </div>
-        </div>
-      );
     }
+
+    // List of repos and their projects.
+    return (
+      <div id="repos">
+        <div className="header">
+          <div className="sort" onClick={this.onSort}><Icon name="sort"/> Sorted by {repos.sortBy}</div>
+          <h2>Repos</h2>
+        </div>
+        <table>
+          <tbody>
+            {errors}
+            {list}
+          </tbody>
+        </table>
+        <div className="footer">
+          <div onClick={this.props.onToggleMode}>Edit Repos</div>
+          <div onClick={this.onRefresh}>Refresh Repos</div>
+        </div>
+      </div>
+    );
   }
 }
 
 const mapDispatch = dispatch => ({
   sortRepos: dispatch.repos.sortRepos,
-  loadRepos: dispatch.repos.loadRepos,
+  getRepos: dispatch.repos.getAll,
   navigate: dispatch.router.navigate
 });
 

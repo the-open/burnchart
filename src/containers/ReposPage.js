@@ -19,6 +19,10 @@ class ReposPage extends Component {
     this.onToggleMode = this.onToggleMode.bind(this);
   }
 
+  componentDidMount() {
+    this.props.getRepos(null);
+  }
+
   // Toggle between edit and view mode.
   onToggleMode() {
     this.setState({ edit: !this.state.edit });
@@ -74,4 +78,8 @@ const mapState = state => {
   };
 };
 
-export default connect(mapState, null)(ReposPage);
+const mapDispatch = dispatch => ({
+  getRepos: dispatch.repos.getAll
+});
+
+export default connect(mapState, mapDispatch)(ReposPage);

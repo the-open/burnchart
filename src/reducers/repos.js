@@ -7,31 +7,43 @@ import stats from '../modules/stats';
 import request from '../modules/github/request';
 import issues from '../modules/github/issues';
 
+let seqId = 0;
+
 const repos = {
   state: {
     // Init the repos from local storage.
-    list: lscache.get('repos') || [],
+    list: lscache.get('repos').map(r => Object.assign(r, { projects: [] })) || [],
     // A sorted repos and projects index.
     index: [],
     // The default sort order.
     sortBy: 'priority',
     // Sort functions to toggle through.
     sortFns: [ 'progress', 'priority', 'name' ],
-    // Fetching data from GitHub.
+    // Request in progress?
     loading: false,
     // App notification.
     notification: null
   },
   reducers: {
     // Push to the stack if it doesn't exist already.
-    addRepo(state, repo) {
-      // TODO ensure not a dupe?
+    saveRepo(state, repo) {
       opa.ensureExists(repo, 'projects', []);
 
       if (state.list.findIndex(findRepo(repo)) === -1) {
         state.list.push(repo);
         store(state.list);
       }
+      return state;
+    },
+
+    // TODO flatten and ES6.
+    saveProject(state, { project, repo, index }) {
+      if (index) {
+        state.list[repo].projects[index] = project;
+      } else {
+        state.list[repo].projects.push(project);
+      }
+
       return state;
     },
 
@@ -134,12 +146,16 @@ const repos = {
       }
 
       return Object.assign({}, state, { index });
+    },
+
+    loading(state, loading) {
+      return Object.assign({}, state, loading);
     }
   },
   effects: {
     // Demonstration repos.
     async demo() {
-      return await [
+      await [
         { owner: 'd3', name: 'd3' },
         { owner: 'radekstepan', name: 'disposable' },
         { owner: 'rails', name: 'rails' },
@@ -162,7 +178,7 @@ const repos = {
         repos.sortBy = sortFns[idx];  
       }
 
-      return this.sort();
+      this.sort();
     },
 
     // Delete a repo.
@@ -176,7 +192,7 @@ const repos = {
       store(repos.list);
 
       // And the index, sorting again.
-      return this.sort();
+      this.sort();
     },
 
     // Add a project for a repo.
@@ -191,10 +207,13 @@ const repos = {
       // Add in the stats.
       project.stats = stats(project);
 
+      // Generate a new unique key (underlying data may have changed);
+      project.key = seqId++;
+
       // If repo hasn't been found, add it behind the scenes.
       let i = state.repos.list.findIndex(findRepo(repo));
       if (i === -1) {
-        this.addRepo(repo);
+        this.saveRepo(repo);
         i = state.repos.list.length - 1;
       }
 
@@ -202,20 +221,22 @@ const repos = {
       const { projects } = state.repos.list[i];
       let j = projects.findIndex(findProject(project));
       if (j === -1) {
-        projects.push(project);
+        this.saveProject({ project, repo: i });
         j = projects.length - 1;
       } else {
-        projects[j] = project;
+        this.saveProject({ project, repo: i, index: j });
       }
 
       store(state.repos.list);
 
       // Now index this project.
-      return this.sort([ i, j ], [ repo, project ]);
+      this.sort([ i, j ], [ repo, project ]);
     },
 
     async getAll(props, state) {
       const { list } = state.repos;
+
+      this.loading(true);
 
       // Reset first.
       list.forEach(r => delete r.errors);
@@ -223,24 +244,25 @@ const repos = {
       if (props) {
         if ('project' in props) {
           // For a single project.
-          return this.getProject({
-            owner: props.owner,
-            name: props.name
-          }, { number: parseInt(props.project, 10) });
+          const repo = { owner: props.owner, name: props.name };
+          const project = { number: parseInt(props.project, 10) };
+          await this.getProject({ repo, project });
+        } else {
+          // For a single repo.
+          const repo = list.find(r => {
+            if (props.owner === r.owner && props.name === r.name) {
+              return r;
+            };
+            return false;
+          });
+          await this.getRepo(repo);
         }
-
-        // For a single repo.
-        const repo = list.find(r => {
-          if (props.owner === r.owner && props.name === r.name) {
-            return r;
-          };
-          return false;
-        });
-        return this.getRepo(repo);
+      } else {
+        // For all repos.
+        await list.map(async r => await this.getRepo(r));
       }
-      
-      // For all repos.
-      return await list.map(async r => await this.getRepo(r));
+
+      this.loading(false);
     },
 
     // Fetch a single project.
@@ -252,7 +274,8 @@ const repos = {
         name: args.repo.name,
         project_number: args.project.number
       });
-      return this.addProject({ project, repo: args.repo });
+      
+      this.addProject({ project, repo: args.repo });
     },
 
     // Fetch projects in a repo.
@@ -265,47 +288,48 @@ const repos = {
       } catch(err) {
         console.warn(err);
       }
-      return await projects.map(async project =>
-        await this.getProject({ repo, project })
+      
+      projects.map(project =>
+        this.addProject({ repo, project })
       );
     },
 
     // Search repos.
-    async searchRepos(text, state) {
-      if (!text || !text.length) return;
+    // async searchRepos(text, state) {
+    //   if (!text || !text.length) return;
 
-      // Can we get the owner (and name) from the text?
-      let owner, name;
-      if (/\//.test(text)) {
-        [ owner, name ] = text.split('/');
-      } else {
-        text = new RegExp(`^${text}`, 'i');
-      }
+    //   // Can we get the owner (and name) from the text?
+    //   let owner, name;
+    //   if (/\//.test(text)) {
+    //     [ owner, name ] = text.split('/');
+    //   } else {
+    //     text = new RegExp(`^${text}`, 'i');
+    //   }
 
-      // No owner means nothing to go on.
-      if (!owner) return;
+    //   // No owner means nothing to go on.
+    //   if (!owner) return;
 
-      // Make the request.
-      const res = await request.repos(state.account.user, owner)
+    //   // Make the request.
+    //   const res = await request.repos(state.account.user, owner)
 
-      const suggestions = (res.filter(repo => {
-        // Remove repos with no issues.
-        if (!repo.has_issues) return false;
+    //   const suggestions = (res.filter(repo => {
+    //     // Remove repos with no issues.
+    //     if (!repo.has_issues) return false;
 
-        // Remove repos we have already.
-        if (this.has(repo.owner.login, repo.name)) return false;
+    //     // Remove repos we have already.
+    //     if (this.has(repo.owner.login, repo.name)) return false;
 
-        // Match on owner or name.
-        if (owner) {
-          if (!new RegExp(`^${owner}`, 'i').test(repo.owner.login)) return false;
-          if (!name || new RegExp(`^${name}`, 'i').test(repo.name)) return true;
-        }
-        return text.test(repo.owner.login) || text.test(repo.name);
-      }))
-      .map(({ full_name }) => full_name);
+    //     // Match on owner or name.
+    //     if (owner) {
+    //       if (!new RegExp(`^${owner}`, 'i').test(repo.owner.login)) return false;
+    //       if (!name || new RegExp(`^${name}`, 'i').test(repo.name)) return true;
+    //     }
+    //     return text.test(repo.owner.login) || text.test(repo.name);
+    //   }))
+    //   .map(({ full_name }) => full_name);
 
-      return Object.assign({}, state, { suggestions });
-    },
+    //   Object.assign({}, state, { suggestions });
+    // }
   }
 };
 

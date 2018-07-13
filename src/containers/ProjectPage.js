@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
-import _ from 'lodash';
 
 import format from '../modules/format.js';
 
@@ -11,29 +10,35 @@ import Chart from '../components/Chart';
 
 class ProjectPage extends Component {
 
+  componentDidMount() {
+    this.props.getProject(this.props.router.params);
+  }
+
   render() {
     const { repos, account, chart } = this.props;
 
     let content;
-    if (chart) {
-      let description;
-      if (chart.description) {
-        description = format.markdown(chart.description);
-      }
-
-      content = (
-        <div>
-          <div id="title">
-            <div className="wrap">
-              <h2 className="title">{format.title(chart.name)}</h2>
-              <div className="description">{description}</div>
+    if (!repos.loading) {
+      if (chart) {
+        let description;
+        if (chart.description) {
+          description = format.markdown(chart.description);
+        }
+  
+        content = (
+          <div>
+            <div id="title">
+              <div className="wrap">
+                <h2 className="title">{format.title(chart.name)}</h2>
+                <div className="description">{description}</div>
+              </div>
+            </div>
+            <div id="content" className="wrap">
+              {/*<Chart data={chart} />*/}
             </div>
           </div>
-          <div id="content" className="wrap">
-            <Chart data={chart} />
-          </div>
-        </div>
-      );
+        );
+      }
     }
 
     return (
@@ -51,23 +56,22 @@ class ProjectPage extends Component {
 
 const mapState = state => {
   const { account, repos, router } = state;
+  const repo = router.params;
 
   let chart;
-  if (!repos.loading) {
-    // Find the project.
-    _.find(repos.list, obj => {
-      if (obj.owner === router.params.owner && obj.name === router.params.name) {
-        return _.find(obj.projects, p => {
-          if (p.number === router.params.project) {
-            chart = p;
-            return true;
-          }
-          return false;
-        });
-      }
-      return false;
-    });
-  }
+  // Find the project.
+  repos.list.find(obj => {
+    if (obj.owner === repo.owner && obj.name === repo.name) {
+      return obj.projects.find(p => {
+        if (p.number === router.params.project) {
+          chart = p;
+          return true;
+        }
+        return false;
+      });
+    }
+    return false;
+  });
 
   return {
     account,
@@ -77,4 +81,8 @@ const mapState = state => {
   };
 };
 
-export default connect(mapState, null)(ProjectPage);
+const mapDispatch = dispatch => ({
+  getProject: dispatch.repos.getAll
+});
+
+export default connect(mapState, mapDispatch)(ProjectPage);
