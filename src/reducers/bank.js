@@ -4,15 +4,17 @@ import semver from 'semver';
 import sortedIndex from 'sortedindex-compare';
 
 import stats from '../modules/stats';
-import request from '../modules/github/request';
 import issues from '../modules/github/issues';
+import request from '../modules/github/request';
 
 let seqId = 0;
 
-const repos = {
+const bank = {
   state: {
     // Init the repos from local storage.
-    list: lscache.get('repos').map(r => Object.assign(r, { projects: [] })) || [],
+    repos: lscache.get('repos') || {},
+    // A set of projects belonging to repos.
+    projects: {},
     // A sorted repos and projects index.
     index: [],
     // The default sort order.
@@ -25,26 +27,22 @@ const repos = {
     notification: null
   },
   reducers: {
-    // Push to the stack if it doesn't exist already.
-    saveRepo(state, repo) {
-      opa.ensureExists(repo, 'projects', []);
+    saveRepo(state, { key, repo }) {
+      const repos = Object.assign({}, state.repos, { [key]: repo });
+      persist(repos);
 
-      if (state.list.findIndex(findRepo(repo)) === -1) {
-        state.list.push(repo);
-        store(state.list);
-      }
-      return state;
+      return Object.assign({}, state, { repos });
     },
 
-    // TODO flatten and ES6.
-    saveProject(state, { project, repo, index }) {
-      if (index) {
-        state.list[repo].projects[index] = project;
-      } else {
-        state.list[repo].projects.push(project);
-      }
+    removeRepo(state, key) {
+      const { [key]: _, ...repos } = state.repos;
 
-      return state;
+      return Object.assign({}, state, { repos } );
+    },
+
+    saveProject(state, { key, project }) {
+      const projects = Object.assign({}, state.projects, { [key]: project });
+      return Object.assign({}, state, { projects });
     },
 
     // // Talk about the stats of a project.
@@ -116,46 +114,57 @@ const repos = {
     //   return state;
     // },
 
-    // Sort repos (update the index). Can pass reference to the
-    //  repo and project index in the stack.
-    sort(state, ref, data) {
-      let idx;
-      // Get the existing index.
-      let { index } = state;
-
-      // Index one project in an already sorted index.
-      if (ref) {
-        idx = sortedIndex(index, data, comparator(state));
-        index.splice(idx, 0, ref);
-      // Sort them all.
-      } else {
-        const { list } = state;
-        index = [];
-        for (let i = 0; i < list.length; i++) {
-          const repo = list[i];
-          // TODO: need to show repos that failed too...
-          if (!repo.projects.length) continue;
-          // Walk the projects.
-          for (let j = 0; j < repo.projects.length; j++) {
-            const project = repo.projects[j];
-            // Run a comparator here inserting into index.
-            idx = sortedIndex(index, [ repo, project ], comparator(state));
-            index.splice(idx, 0, [ i, j ]);
-          }
-        }
-      }
-
-      return Object.assign({}, state, { index });
-    },
-
-    loading(state, loading) {
-      return Object.assign({}, state, loading);
+    set(state, obj) {
+      return Object.assign({}, state, obj);
     }
   },
   effects: {
+    addRepo(repo) {
+      this.saveRepo({ repo, key: `r${seqId++}` });
+    },
+
+    // Sort repos (update the index). Can pass reference to the
+    //  repo and project index in the stack.
+    sort({ ref, data }, root) {
+      const { bank } = root;
+      let  { index } = bank;
+
+      // Index one project in an already sorted index.
+      if (ref) {
+        const idx = sortedIndex(
+          index,
+          data,
+          comparator(bank)
+        );
+        index.splice(idx, 0, ref);
+      // Sort them all.
+      } else {
+        index = [];
+        const { repos, projects } = bank;
+        for (let i in repos) {
+          const repo = repos[i];
+          // Walk the projects of this repo.
+          Object.keys(projects).filter(j =>
+            projects[j].repo.owner === repo.owner &
+            projects[j].repo.name === repo.name
+          ).forEach(j => {
+            // Run a comparator here inserting into index.
+            const idx = sortedIndex(
+              index,
+              [ repos[i], projects[j] ],
+              comparator(bank)
+            );
+            index.splice(idx, 0, [i, j]);
+          });
+        }
+      }
+
+      this.set({ index });
+    },
+
     // Demonstration repos.
-    async demo() {
-      await [
+    demo() {
+      [
         { owner: 'd3', name: 'd3' },
         { owner: 'radekstepan', name: 'disposable' },
         { owner: 'rails', name: 'rails' },
@@ -164,39 +173,34 @@ const repos = {
     },
 
     // Sort by function or cycle to the next one.
-    sortBy(name, state) {
-      const { repos } = state;
-      const { sortBy, sortFns } = repos;
+    sortBy(name, root) {
+      const { sortBy, sortFns } = root.bank;
 
       // TODO validate.
       if (name) {
-        repos.sortBy = name;
+        this.set({ sortBy: name });
       } else {
         let idx = 1 + sortFns.indexOf(sortBy);
         if (idx === sortFns.length) idx = 0;
-  
-        repos.sortBy = sortFns[idx];  
+        this.set({ sortBy: sortFns[idx] });
       }
 
-      this.sort();
+      this.sort({});
     },
 
     // Delete a repo.
-    deleteRepo(repo, state) {
-      const { repos } = state;
+    deleteRepo(repo, root) {
+      const { bank } = root;
 
-      const i = repos.list.findIndex(findRepo(repo));
-      // Delete the repo.
-      repos.list.splice(i, 1);
-      
-      store(repos.list);
+      const i = findRepo(bank.repos, repo);
+      this.removeRepo(i);
 
       // And the index, sorting again.
-      this.sort();
+      this.sort({});
     },
 
     // Add a project for a repo.
-    addProject({ repo, project }, state) {
+    addProject({ repo, project }, root) {
       if (typeof project.number === 'undefined') throw new Error('Project number not provided');
 
       opa.ensureExists(project, 'columns.nodes', []);
@@ -207,39 +211,37 @@ const repos = {
       // Add in the stats.
       project.stats = stats(project);
 
-      // Generate a new unique key (underlying data may have changed);
-      project.key = seqId++;
+      // Ref back to repo.
+      project.repo = repo;
+
+      const { projects, repos } = root.bank;
 
       // If repo hasn't been found, add it behind the scenes.
-      let i = state.repos.list.findIndex(findRepo(repo));
-      if (i === -1) {
-        this.saveRepo(repo);
-        i = state.repos.list.length - 1;
+      let i = findRepo(repos, repo);
+      if (i === undefined) {
+        i = `r${seqId++}`;
+        this.saveRepo({ repo, key: i });
       }
 
       // Does the project exist already?
-      const { projects } = state.repos.list[i];
-      let j = projects.findIndex(findProject(project));
-      if (j === -1) {
-        this.saveProject({ project, repo: i });
-        j = projects.length - 1;
-      } else {
-        this.saveProject({ project, repo: i, index: j });
+      let j = findProject(projects, repo, project);
+      if (j === undefined) {
+        j = `p${seqId++}`;
       }
-
-      store(state.repos.list);
+      project.key = j;
+      this.saveProject({ project, key: j });
 
       // Now index this project.
-      this.sort([ i, j ], [ repo, project ]);
+      this.sort({ ref: [ i, j ], data: [ repo, project ] });
     },
 
-    async getAll(props, state) {
-      const { list } = state.repos;
+    async getAll(props, root) {
+      const { repos } = root.bank;
 
-      this.loading(true);
+      this.set({ loading: true });
 
       // Reset first.
-      list.forEach(r => delete r.errors);
+      repos.forEach(r => delete r.errors);
 
       if (props) {
         if ('project' in props) {
@@ -249,25 +251,20 @@ const repos = {
           await this.getProject({ repo, project });
         } else {
           // For a single repo.
-          const repo = list.find(r => {
-            if (props.owner === r.owner && props.name === r.name) {
-              return r;
-            };
-            return false;
-          });
+          const repo = repos.find(findRepo(props));
           await this.getRepo(repo);
         }
       } else {
         // For all repos.
-        await list.map(async r => await this.getRepo(r));
+        await repos.map(async r => await this.getRepo(r));
       }
 
-      this.loading(false);
+      this.set({ loading: false });
     },
 
     // Fetch a single project.
-    async getProject(args, state) {
-      const { user } = state.account;
+    async getProject(args, root) {
+      const { user } = root.account;
 
       const project = await request.oneProject(user, {
         owner: args.repo.owner,
@@ -279,8 +276,8 @@ const repos = {
     },
 
     // Fetch projects in a repo.
-    async getRepo(repo, state) {
-      const { user } = state.account;
+    async getRepo(repo, root) {
+      const { user } = root.account;
 
       let projects;
       try {
@@ -295,7 +292,7 @@ const repos = {
     },
 
     // Search repos.
-    // async searchRepos(text, state) {
+    // async searchRepos(text, root) {
     //   if (!text || !text.length) return;
 
     //   // Can we get the owner (and name) from the text?
@@ -310,7 +307,7 @@ const repos = {
     //   if (!owner) return;
 
     //   // Make the request.
-    //   const res = await request.repos(state.account.user, owner)
+    //   const res = await request.repos(root.account.user, owner)
 
     //   const suggestions = (res.filter(repo => {
     //     // Remove repos with no issues.
@@ -334,11 +331,11 @@ const repos = {
 };
 
 // Return a sort order comparator.
-const comparator = ({ list, sortBy }) => {
+const comparator = ({ repos, projects, sortBy }) => {
   // Convert existing index into actual repo project.
   const deIdx = fn =>
     ([ i, j ], ...rest) =>
-      fn.apply(this, [ [ list[i], list[i].projects[j] ] ].concat(rest));
+      fn.apply(this, [ [ repos[i], projects[j] ] ].concat(rest));
 
   // Set default fields.
   const defaults = (arr, obj) => {
@@ -396,12 +393,22 @@ const comparator = ({ list, sortBy }) => {
   }
 };
 
-const findRepo = a => b => a.owner === b.owner && a.name === b.name;
-const findProject = a => b => a.number === b.number;
+const findRepo = (list, repo) =>
+  Object.keys(list).find(
+    key => list[key].owner === repo.owner &&
+      list[key].name === repo.name
+  );
+
+const findProject = (list, repo, project) =>
+  Object.keys(list).find(
+    key => list[key].number === project.number &&
+      list[key].repo.owner === repo.owner &&
+      list[key].repo.name === repo.name
+  );
 
 // Persist repos in local storage (sans projects and issues).
-const store = repos =>
+const persist = repos =>
   process.browser &&
     lscache.set('repos', repos.map(r => ({ owner: r.owner, name: r.name })));
 
-export default repos;
+export default bank;
