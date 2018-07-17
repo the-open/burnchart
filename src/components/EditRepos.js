@@ -17,9 +17,9 @@ class EditRepos extends Component {
   }
 
   render() {
-    const { repos, navigate } = this.props;
+    const { bank, navigate } = this.props;
 
-    let list = _(repos.list)
+    let list = _(bank.repos)
     .sortBy(({ owner, name }) => `${owner}/${name}`)
     .map(({owner, name}, i) => {
       return (
@@ -58,15 +58,15 @@ class EditRepos extends Component {
 }
 
 const mapState = state => {
-  const { repos } = state;
+  const { bank } = state;
 
   return {
-    repos
+    bank
   };
 };
 
 const mapDispatch = dispatch => ({
-  deleteRepo: dispatch.repos.deleteRepo,
+  deleteRepo: dispatch.bank.deleteRepo,
   navigate: dispatch.router.navigate
 });
 

@@ -14,27 +14,27 @@ class ProjectsPage extends Component {
   }
 
   render() {
-    const { repos, account, router, chart } = this.props;
+    const { bank, account, router, chart } = this.props;
     const repo = router.params;
 
     let content;
-    if (!repos.loading) {
+    if (!bank.loading) {
       if (chart) {
         content = (
           <div>
             {/*<Chart data={chart} style={{ marginBottom: '40px' }} />*/}
-            <Projects repos={repos} repo={repo} />
+            <Projects bank={bank} repo={repo} />
           </div>
         );
       } else {
-        content = <Projects repos={repos} repo={repo} />
+        content = <Projects bank={bank} repo={repo} />
       }
     }
 
     return (
       <div>
         <Notify />
-        <Header account={account} repos={repos} />
+        <Header account={account} bank={bank} />
 
         <div id="page">
           <div id="title">
@@ -52,12 +52,12 @@ class ProjectsPage extends Component {
 }
 
 const mapState = state => {
-  const { account, repos, router } = state;
+  const { account, bank, router } = state;
   const repo = router.params;
 
   let chart;
   // Create the all projects payload.
-  repos.list.find(obj => {
+  Object.entries(bank.repos).find(([key, obj]) => {
     if (obj.owner === repo.owner && obj.name === repo.name) {
       if (obj.projects) {
         let createdAt = 'Z', closedAt = '0';
@@ -66,7 +66,11 @@ const mapState = state => {
           open:   { list: [], size: 0 }
         };
         // Merge all the project issues together.
-        (obj.projects.filter(p => !p.stats.isEmpty)).map(p => {
+        Object.entries(bank.projects).filter(([key, p]) =>
+          p.repo.owner === repo.owner &&
+            p.repo.name === repo.name &&
+            !p.stats.isEmpty
+        ).forEach(([key, p]) => {
           if (p.createdAt < createdAt) createdAt = p.createdAt;
           if (p.closedAt > closedAt) closedAt = p.closedAt;
           [ 'closed', 'open' ].forEach(k => {
@@ -92,14 +96,14 @@ const mapState = state => {
 
   return {
     account,
-    repos,
+    bank,
     router,
     chart
   };
 };
 
 const mapDispatch = dispatch => ({
-  getProjects: dispatch.repos.getAll
+  getProjects: dispatch.bank.getAll
 });
 
 export default connect(mapState, mapDispatch)(ProjectsPage);

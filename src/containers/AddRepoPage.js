@@ -9,18 +9,18 @@ import AddRepoForm from '../components/AddRepoForm';
 class AddRepoPage extends Component {
 
   render() {
-    const { account, repos } = this.props;
+    const { account, bank } = this.props;
 
     return (
       <div>
         <Notify />
-        <Header account={account} repos={repos} />
+        <Header account={account} bank={bank} />
 
         <div id="page">
           <div id="content" className="wrap">
             <AddRepoForm
               user={account.user}
-              suggestions={repos.suggestions}
+              suggestions={bank.suggestions}
             />
           </div>
         </div>
@@ -32,11 +32,11 @@ class AddRepoPage extends Component {
 }
 
 const mapState = state => {
-  const { account, repos } = state;
+  const { account, bank } = state;
 
   return {
     account,
-    repos
+    bank
   };
 };
 

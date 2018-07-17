@@ -12,7 +12,11 @@ let seqId = 0;
 const bank = {
   state: {
     // Init the repos from local storage.
-    repos: lscache.get('repos') || {},
+    repos: (function(list) {
+      return list.reduce((obj, repo) =>
+        Object.assign(obj, { [`r${seqId++}`]: repo })
+      , {});
+    })(lscache.get('repos') || []),
     // A set of projects belonging to repos.
     projects: {},
     // A sorted repos and projects index.
@@ -173,7 +177,7 @@ const bank = {
     },
 
     // Sort by function or cycle to the next one.
-    sortBy(name, root) {
+    sortRepos(name, root) {
       const { sortBy, sortFns } = root.bank;
 
       // TODO validate.
@@ -241,7 +245,7 @@ const bank = {
       this.set({ loading: true });
 
       // Reset first.
-      repos.forEach(r => delete r.errors);
+      Object.keys(repos).forEach(key => delete repos[key].errors);
 
       if (props) {
         if ('project' in props) {
@@ -251,12 +255,12 @@ const bank = {
           await this.getProject({ repo, project });
         } else {
           // For a single repo.
-          const repo = repos.find(findRepo(props));
-          await this.getRepo(repo);
+          const key = findRepo(repos, props);
+          await this.getRepo(repos[key]);
         }
       } else {
         // For all repos.
-        await repos.map(async r => await this.getRepo(r));
+        await Object.keys(repos).forEach(async key => await this.getRepo(repos[key]));
       }
 
       this.set({ loading: false });
@@ -285,7 +289,7 @@ const bank = {
       } catch(err) {
         console.warn(err);
       }
-      
+
       projects.map(project =>
         this.addProject({ repo, project })
       );
@@ -409,6 +413,6 @@ const findProject = (list, repo, project) =>
 // Persist repos in local storage (sans projects and issues).
 const persist = repos =>
   process.browser &&
-    lscache.set('repos', repos.map(r => ({ owner: r.owner, name: r.name })));
+    lscache.set('repos', Object.keys(repos).map(key => ({ owner: repos[key].owner, name: repos[key].name })));
 
 export default bank;

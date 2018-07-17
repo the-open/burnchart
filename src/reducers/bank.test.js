@@ -111,7 +111,7 @@ describe('bank model', () => {
     store.dispatch.bank.addProject({ repo, project: project1 });
     store.dispatch.bank.addProject({ repo, project: project2 });
 
-    store.dispatch.bank.sortBy('progress');
+    store.dispatch.bank.sortRepos('progress');
 
     expect(store.getState().bank.index).toEqual([['r0', 'p2'], ['r0', 'p1']]);
   });
@@ -173,7 +173,7 @@ describe('bank model', () => {
       name: 'A'
     };
 
-    store.dispatch.bank.sortBy('name');
+    store.dispatch.bank.sortRepos('name');
 
     store.dispatch.bank.addProject({ repo, project: project1 });
     store.dispatch.bank.addProject({ repo, project: project2 });
@@ -202,7 +202,7 @@ describe('bank model', () => {
       name: '1.1.7'
     };
 
-    store.dispatch.bank.sortBy('name');
+    store.dispatch.bank.sortRepos('name');
 
     store.dispatch.bank.addProject({ repo, project: project1 });
     store.dispatch.bank.addProject({ repo, project: project2 });
@@ -236,7 +236,7 @@ describe('bank model', () => {
       name: 'C'
     };
 
-    store.dispatch.bank.sortBy('name');
+    store.dispatch.bank.sortRepos('name');
 
     store.dispatch.bank.addProject({ repo: repo1, project: project1 });
     store.dispatch.bank.addRepo(repo2);

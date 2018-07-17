@@ -15,10 +15,10 @@ class ProjectPage extends Component {
   }
 
   render() {
-    const { repos, account, chart } = this.props;
+    const { bank, account, chart } = this.props;
 
     let content;
-    if (!repos.loading) {
+    if (!bank.loading) {
       if (chart) {
         let description;
         if (chart.description) {
@@ -44,7 +44,7 @@ class ProjectPage extends Component {
     return (
       <div>
         <Notify />
-        <Header account={account} repos={repos} />
+        <Header account={account} bank={bank} />
 
         <div id="page">{content}</div>
 
@@ -55,34 +55,32 @@ class ProjectPage extends Component {
 }
 
 const mapState = state => {
-  const { account, repos, router } = state;
+  const { account, bank, router } = state;
   const repo = router.params;
 
   let chart;
   // Find the project.
-  repos.list.find(obj => {
+  Object.entries(bank.repos).find(([key, obj]) => {
     if (obj.owner === repo.owner && obj.name === repo.name) {
-      return obj.projects.find(p => {
-        if (p.number === router.params.project) {
-          chart = p;
-          return true;
-        }
-        return false;
-      });
+      return Object.entries(bank.projects).find(([key, p]) =>
+        p.repo.owner === repo.owner &&
+          p.repo.name === repo.name &&
+          p.number === repo.project
+      );
     }
     return false;
   });
 
   return {
     account,
-    repos,
+    bank,
     router,
     chart
   };
 };
 
 const mapDispatch = dispatch => ({
-  getProject: dispatch.repos.getAll
+  getProject: dispatch.bank.getAll
 });
 
 export default connect(mapState, mapDispatch)(ProjectPage);

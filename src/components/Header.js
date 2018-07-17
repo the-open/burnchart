@@ -7,7 +7,7 @@ import Icon from './Icon';
 class Header extends Component {
 
   render() {
-    const { repos, account, navigate } = this.props;
+    const { bank, account, navigate } = this.props;
 
     // Sign-in/out.
     let user;
@@ -30,11 +30,11 @@ class Header extends Component {
     }
 
     // Switch loading icon with app icon.
-    const icon = [ 'fire', 'spinner' ][ +repos.loading ];
+    const icon = [ 'fire', 'spinner' ][ +bank.loading ];
 
     return (
       <div>
-        <Notify {...repos.notification} />
+        <Notify {...bank.notification} />
         <div id="head">
           {user}
 
@@ -60,11 +60,19 @@ class Header extends Component {
   }
 }
 
+const mapState = state => {
+  const { bank } = state;
+
+  return {
+    bank
+  };
+};
+
 const mapDispatch = dispatch => ({
   signIn: dispatch.account.signIn,
   signOut: dispatch.account.signOut,
-  demo: dispatch.repos.demo,
+  demo: dispatch.bank.demo,
   navigate: dispatch.router.navigate
 });
 
-export default connect(null, mapDispatch)(Header);
+export default connect(mapState, mapDispatch)(Header);

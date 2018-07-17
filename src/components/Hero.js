@@ -30,7 +30,7 @@ class Hero extends Component {
 }
 
 const mapDispatch = dispatch => ({
-  demo: dispatch.repos.demo
+  demo: dispatch.bank.demo
 });
 
 export default connect(null, mapDispatch)(Hero);

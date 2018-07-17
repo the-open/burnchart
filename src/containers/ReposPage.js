@@ -29,22 +29,22 @@ class ReposPage extends Component {
   }
 
   render() {
-    const { repos, account } = this.props;
+    const { bank, account } = this.props;
 
     let content;
-    if (!repos.loading) {
-      if (repos.list.length) {
+    if (!bank.loading) {
+      if (bank.repos) {
         if (!this.state.edit) {
           content = (
             <Projects
-              repos={repos}
+            bank={bank}
               onToggleMode={this.onToggleMode}
             />
           );
         } else {
           content = (
             <EditRepos
-              repos={repos}
+              bank={bank}
               onToggleMode={this.onToggleMode}
             />
           );
@@ -57,7 +57,7 @@ class ReposPage extends Component {
     return (
       <div>
         <Notify />
-        <Header account={account} repos={repos} />
+        <Header account={account} bank={bank} />
 
         <div id="page">
           <div id="content" className="wrap">{content}</div>
@@ -70,16 +70,16 @@ class ReposPage extends Component {
 }
 
 const mapState = state => {
-  const { account, repos } = state;
+  const { account, bank } = state;
 
   return {
     account,
-    repos
+    bank
   };
 };
 
 const mapDispatch = dispatch => ({
-  getRepos: dispatch.repos.getAll
+  getRepos: dispatch.bank.getAll
 });
 
 export default connect(mapState, mapDispatch)(ReposPage);

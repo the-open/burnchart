@@ -113,8 +113,8 @@ class AddRepoForm extends Component {
 
 const mapDispatch = dispatch => ({
   signIn: dispatch.account.signIn,
-  searchRepos: dispatch.repos.searchRepos,
-  addRepo: dispatch.repos.addRepo,
+  searchRepos: dispatch.bank.searchRepos,
+  addRepo: dispatch.bank.addRepo,
   navigate: dispatch.router.navigate
 });
 

@@ -24,7 +24,7 @@ class Notify extends Component {
 
   // Close notification.
   onClose() {
-    this.props.closeNotification();
+    //this.props.closeNotification();
   }
 
   render() {
@@ -73,8 +73,8 @@ class NotifyWrapper extends Component {
   }
 }
 
-const mapDispatch = dispatch => ({
-  closeNotification: dispatch.repos.closeNotification
-});
+// const mapDispatch = dispatch => ({
+//   closeNotification: dispatch.repos.closeNotification
+// });
 
-export default connect(null, mapDispatch)(NotifyWrapper);
+export default connect(null, null)(NotifyWrapper);

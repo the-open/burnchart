@@ -25,12 +25,15 @@ class Projects extends Component {
   }
 
   render() {
-    const { repos, repo, navigate } = this.props;
+    const { repo, navigate } = this.props;
+    const { repos, projects, index, sortBy } = this.props.bank;
+    const entries = Object.entries(repos);
 
     // Show the repos with errors first.
-    const errors = (repos.list.filter(r => r.errors)).map((repo, i) =>
+    const errors = (entries.filter(([key, repo]) => repo.errors))
+    .map(([key, repo]) =>
       (
-        <tr key={`err-${i}`}>
+        <tr key={`err-${key}`}>
           <td colSpan="3">
             <div className="repo">{repo.owner}/{repo.name}
               <span className="error" title={repo.errors.join('\n')}><Icon name="warning"/></span>
@@ -41,27 +44,23 @@ class Projects extends Component {
     );
 
     // Now for the list of projects, index sorted.
-    const list = [];
-    repos.index.forEach(([ rI, pI ]) => {
-      const { owner, name, projects } = repos.list[rI];
-      const project = projects[pI];
-
-      // Filter down?
-      if (!(!repo || (repo.owner === owner && repo.name === name))) return;
-
-      list.push(
+    const list = index.filter(([rI, pI]) =>
+      !repo || (repo.owner === repos[rI].owner && repo.name === repos[rI].name)
+    ).map(([rI, pI]) => projects[pI]
+    ).map(project =>
+      (
         <tr className={cls({ done: project.stats.isDone })} key={project.key}>
           <td>
             <div
-              onClick={() => navigate(`/${owner}/${name}`)}
+              onClick={() => navigate(`/${project.repo.owner}/${project.repo.name}`)}
               className="repo"
             >
-              {owner}/{name}
+              {project.repo.owner}/{project.repo.name}
             </div>
           </td>
           <td>
             <div
-              onClick={() => navigate(`/${owner}/${name}/${project.number}`)}
+              onClick={() => navigate(`/${project.repo.owner}/${project.repo.name}/${project.number}`)}
               className="project"
             >
               {project.name}
@@ -82,8 +81,8 @@ class Projects extends Component {
             </div>
           </td>
         </tr>
-      );
-    });
+      )
+    );
 
     // Wait for something to show.
     if (!errors.length && !list.length) return false;
@@ -93,7 +92,7 @@ class Projects extends Component {
       return (
         <div id="repos">
           <div className="header">
-            <div className="sort" onClick={this.onSort}><Icon name="sort"/> Sorted by {repos.sortBy}</div>
+            <div className="sort" onClick={this.onSort}><Icon name="sort"/> Sorted by {sortBy}</div>
             <h2>Projects</h2>
           </div>
           <table>
@@ -108,7 +107,7 @@ class Projects extends Component {
     return (
       <div id="repos">
         <div className="header">
-          <div className="sort" onClick={this.onSort}><Icon name="sort"/> Sorted by {repos.sortBy}</div>
+          <div className="sort" onClick={this.onSort}><Icon name="sort"/> Sorted by {sortBy}</div>
           <h2>Repos</h2>
         </div>
         <table>
@@ -127,8 +126,8 @@ class Projects extends Component {
 }
 
 const mapDispatch = dispatch => ({
-  sortRepos: dispatch.repos.sortRepos,
-  getRepos: dispatch.repos.getAll,
+  sortRepos: dispatch.bank.sortRepos,
+  getRepos: dispatch.bank.getAll,
   navigate: dispatch.router.navigate
 });
 
