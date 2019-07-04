@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { connect } from "react-redux";
+import React, {Component} from 'react';
+import {connect} from "react-redux";
 import Autosuggest from 'react-autosuggest';
 
 import Icon from './Icon';
@@ -7,29 +7,20 @@ import S from './Space';
 
 class AddRepoForm extends Component {
 
-  constructor() {
-    super();
-    
-    // Blank input.
-    this.state = { val: '' };
-    
-    // Bindings.
-    this.onChange = this.onChange.bind(this);
-    this.onAdd = this.onAdd.bind(this);
-    this.onGetList = this.onGetList.bind(this);
-  }
+  // Blank input.
+  state = {val: '' };
 
   // Sign user in.
   onSignIn() {
     this.props.signIn();
   }
 
-  onChange(evt, { newValue }) {
-    this.setState({ val: newValue });
+  onChange = (evt, {newValue }) => {
+    this.setState({val: newValue });
   }
 
   // Get a list of repo suggestions.
-  onGetList({ value }) {
+  onGetList = ({value }) => {
     this.props.searchRepos(value);
   }
 
@@ -44,18 +35,18 @@ class AddRepoForm extends Component {
   }
 
   // Add the project.
-  onAdd() {
-    const { val } = this.state;
+  onAdd = () => {
+    const {val} = this.state;
     // Validate input.
     if (!/^[^\s/]+\/[^\s/]+$/.test(val)) return;
     const [ owner, name ] = val.split('/');
-    this.props.addRepo({ owner, name });
+    this.props.addRepo({owner, name });
     // Redirect to the dashboard.
     this.props.navigate('/');
   }
 
   render() {
-    const { user } = this.props;
+    const {user} = this.props;
     let privateAccess;
     if (!(user != null && 'uid' in user)) {
       privateAccess = (
@@ -113,8 +104,8 @@ class AddRepoForm extends Component {
 
 const mapDispatch = dispatch => ({
   signIn: dispatch.account.signIn,
-  searchRepos: dispatch.bank.searchRepos,
-  addRepo: dispatch.bank.addRepo,
+  searchRepos: dispatch.root.searchRepos,
+  addRepo: dispatch.root.addRepo,
   navigate: dispatch.router.navigate
 });
 

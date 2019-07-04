@@ -2,7 +2,7 @@ import _ from 'lodash';
 import superagent from 'superagent';
 import opa from 'object-path';
 
-import config from '../../config';
+import config from 'src/config';
 import graphqlQueries from './graphql';
 
 // Custom JSON parser.
@@ -10,7 +10,7 @@ superagent.parse = {
   'application/json': res => {
     try {
       return JSON.parse(res);
-    } catch(err) {
+    } catch (err) {
       return {};
     }
   }
@@ -28,7 +28,7 @@ const defaults = {
 export default {
 
   // Get a repo.
-  repo: (user, { owner, name }) => {
+  repo: (user, {owner, name }) => {
     const token = (user && user.accessToken != null) ? user.accessToken : null;
     const data = _.defaults({
       path: `/repos/${owner}/${name}`,
@@ -51,7 +51,7 @@ export default {
     return request(data);
   },
 
-  async allProjects(user, { owner, name }) {
+  async allProjects(user, {owner, name }) {
     const token = (user && user.accessToken != null) ? user.accessToken : null;
     let data = _.defaults({
       path: '/graphql',
@@ -77,7 +77,7 @@ export default {
     return opa.get(res, 'data.repository.projects.nodes');
   },
 
-  async oneProject(user, { owner, name, project_number }) {
+  async oneProject(user, {owner, name, project_number }) {
     const token = (user && user.accessToken != null) ? user.accessToken : null;
 
     let data = _.defaults({
@@ -108,7 +108,7 @@ export default {
 };
 
 // Make a request using SuperAgent.
-const request = ({ protocol, host, method, path, query, headers, body }) => {
+const request = ({protocol, host, method, path, query, headers, body }) => {
   // Make the query params.
   let q = '';
   if (query) {

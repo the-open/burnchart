@@ -1,10 +1,11 @@
-import { Component } from "react";
-import { connect } from "react-redux";
+import {Component} from "react";
+import {connect} from "react-redux";
 
 import history from "../history";
 import routes from "../routes";
 
 class App extends Component {
+
   componentDidMount() {
     // Watch route changes (allows back-button etc.).
     history.listen(location => this.props.route(location.pathname));

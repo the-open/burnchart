@@ -2,7 +2,7 @@ import _ from 'lodash';
 import d3 from 'd3';
 import moment from 'moment';
 
-import config from '../../config';
+import config from 'src/config';
 
 export default {
 
@@ -21,7 +21,7 @@ export default {
 
     // Generate the actual closes.
     let rest = _.map(issues, (issue) => {
-      const { size, closedAt } = issue;
+      const {size, closedAt} = issue;
       // Determine the range.
       if (size < min) min = size;
       if (size > max) max = size;
@@ -68,10 +68,10 @@ export default {
       const day_of = day.weekday() || 7;
 
       if (off_days.indexOf(day_of) !== -1) {
-        days.push({ 'date': day.toJSON(), 'off_day': true });
+        days.push({'date': day.toJSON(), 'off_day': true });
       } else {
         length += 1;
-        days.push({ 'date': day.toJSON() });
+        days.push({'date': day.toJSON() });
       }
 
       // Go again?
@@ -89,7 +89,7 @@ export default {
 
     // Do we need to make a link to right now?
     const now = moment.utc();
-    now > b && days.push({ 'date': now.toJSON(), 'points': 0 });
+    now > b && days.push({'date': now.toJSON(), 'points': 0 });
 
     return days;
   },
@@ -103,7 +103,7 @@ export default {
     let start = moment(first.date, moment.ISO_8601);
 
     // Values is a list of time from the start and points remaining.
-    let values = _.map(actual, ({ date, points }) => {
+    let values = _.map(actual, ({date, points }) => {
       return [ moment(date, moment.ISO_8601).diff(start), points ];
     });
 
@@ -141,8 +141,8 @@ export default {
     let b = closedAt.diff(start);
 
     return [
-      { 'date': createdAt.toJSON(), 'points': fn(a) },
-      { 'date': closedAt.toJSON(), 'points': fn(b) }
+      {'date': createdAt.toJSON(), 'points': fn(a) },
+      {'date': closedAt.toJSON(), 'points': fn(b) }
     ];
   }
 

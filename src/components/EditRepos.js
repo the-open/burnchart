@@ -1,26 +1,20 @@
-import React, { Component } from 'react';
-import { connect } from "react-redux";
-import _ from 'lodash';
+import React, {Component} from 'react';
+import {connect} from "react-redux";
+import _ from 'lodash'; // TODO remove
 
 import Icon from './Icon';
 
 class EditRepos extends Component {
 
-  constructor() {
-    super();
-
-    this.onDelete = this.onDelete.bind(this);
-  }
-
-  onDelete(repo) {
+  onDelete = repo => {
     this.props.deleteRepo(repo);
   }
 
   render() {
-    const { bank, navigate } = this.props;
+    const {root, navigate} = this.props;
 
-    let list = _(bank.repos)
-    .sortBy(({ owner, name }) => `${owner}/${name}`)
+    let list = _(root.repos)
+    .sortBy(({owner, name }) => `${owner}/${name}`)
     .map(({owner, name}, i) => {
       return (
         <tr key={`${owner}-${name}`}>
@@ -34,7 +28,7 @@ class EditRepos extends Component {
           </td>
           <td
             className="action"
-            onClick={() => this.onDelete({ owner, name })}
+            onClick={() => this.onDelete({owner, name })}
           ><Icon name="delete" /> Delete</td>
         </tr>
       );
@@ -58,15 +52,15 @@ class EditRepos extends Component {
 }
 
 const mapState = state => {
-  const { bank } = state;
+  const {root} = state;
 
   return {
-    bank
+    root
   };
 };
 
 const mapDispatch = dispatch => ({
-  deleteRepo: dispatch.bank.deleteRepo,
+  deleteRepo: dispatch.root.deleteRepo,
   navigate: dispatch.router.navigate
 });
 

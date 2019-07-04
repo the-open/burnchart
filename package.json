@@ -4,19 +4,20 @@
   "description": "GitHub Burndown Chart as a Service",
   "author": "Radek Stepan <dev@radekstepan.com> (http://radekstepan.com)",
   "license": "AGPL-3.0",
+  "homepage": "http://radekstepan.com/burnchart",
   "bin": {
     "burnchart": "./bin/burnchart.js"
   },
   "scripts": {
-    "start-js": "react-scripts start",
-    "start": "npm-run-all -p watch-css start-js",
-    "build-js": "react-scripts build",
+    "start": "npm-run-all -p watch-css watch-js",
     "build": "npm-run-all build-css build-js",
+    "build-js": "react-scripts build",
+    "watch-js": "react-scripts start",
+    "build-css": "node-sass-chokidar src/ -o src/",
+    "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
     "test": "CI=true react-scripts test --env=jsdom",
     "watch-test": "react-scripts test --env=jsdom",
-    "coverage": "npm test -- --coverage",
-    "build-css": "node-sass-chokidar src/ -o src/",
-    "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive"
+    "coverage": "npm test -- --coverage"
   },
   "engines": {
     "node": ">= 8.11.0",
@@ -31,6 +32,7 @@
     "d3-tip": "0.6.7",
     "firebase": "5.2.0",
     "history": "4.7.2",
+    "immer": "2.0.0",
     "lscache": "1.0.5",
     "marked": "0.3.19",
     "moment": "2.22.1",
@@ -51,10 +53,16 @@
     "superagent": "3.8.2"
   },
   "devDependencies": {
-    "react-scripts": "1.0.0"
+    "react-scripts": "2.1.3"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/radekstepan/burnchart.git"
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }

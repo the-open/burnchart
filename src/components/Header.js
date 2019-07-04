@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { connect } from "react-redux";
+import React, {Component} from 'react';
+import {connect} from "react-redux";
 
 import Notify from './Notify';
 import Icon from './Icon';
@@ -7,7 +7,7 @@ import Icon from './Icon';
 class Header extends Component {
 
   render() {
-    const { bank, account, navigate } = this.props;
+    const {root, account, navigate} = this.props;
 
     // Sign-in/out.
     let user;
@@ -30,11 +30,11 @@ class Header extends Component {
     }
 
     // Switch loading icon with app icon.
-    const icon = [ 'fire', 'spinner' ][ +bank.loading ];
+    const icon = root.loading ? 'spinner' : 'fire';
 
     return (
       <div>
-        <Notify {...bank.notification} />
+        <Notify {...root.notification} />
         <div id="head">
           {user}
 
@@ -61,17 +61,17 @@ class Header extends Component {
 }
 
 const mapState = state => {
-  const { bank } = state;
+  const {root} = state;
 
   return {
-    bank
+    root
   };
 };
 
 const mapDispatch = dispatch => ({
   signIn: dispatch.account.signIn,
   signOut: dispatch.account.signOut,
-  demo: dispatch.bank.demo,
+  demo: dispatch.root.demo,
   navigate: dispatch.router.navigate
 });
 

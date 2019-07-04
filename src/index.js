@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { init } from "@rematch/core";
-import { Provider } from "react-redux";
+import {init} from "@rematch/core";
+import {Provider} from "react-redux";
 import qs from 'qs';
 
 import history from "./history";

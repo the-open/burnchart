@@ -2,14 +2,14 @@ import React from "react";
 
 import ReposPage from './containers/ReposPage';
 import AddRepoPage from './containers/AddRepoPage';
-import ProjectsPage from './containers/ProjectsPage';
-import ProjectPage from './containers/ProjectPage';
+import MilestonesPage from './containers/MilestonesPage';
+import MilestonePage from './containers/MilestonePage';
 
 const routes = [
-  { path: '/', action: () => <ReposPage /> },
-  { path: '/new/repo', title: 'Add a repo', action: () => <AddRepoPage /> },
-  { path: '/:owner/:name', title: 'Projects', action: () => <ProjectsPage /> },
-  { path: '/:owner/:name/:project', title: 'Project', action: () => <ProjectPage /> }
+  {path: '/', action: () => <ReposPage /> },
+  {path: '/new/repo', title: 'Add a repo', action: () => <AddRepoPage /> },
+  {path: '/:owner/:repo', title: 'Milestones', action: () => <MilestonePage /> },
+  {path: '/:owner/:repo/:milestone', title: 'Milestone', action: () => <MilestonePage /> }
 ];
 
 export default routes;

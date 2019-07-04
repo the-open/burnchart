@@ -1,5 +1,3 @@
-// GitHub GraphQL API queries.
-
 export default {
   allProjectsForOrg: `
     query($login: String!) {

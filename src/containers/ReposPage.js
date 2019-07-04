@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { connect } from "react-redux";
+import React, {Component} from 'react';
+import {connect} from "react-redux";
 
 import Notify from '../components/Notify';
 import Header from '../components/Header';
@@ -10,41 +10,37 @@ import Hero from '../components/Hero';
 
 class ReposPage extends Component {
 
-  constructor() {
-    super();
-
-    // Start the page in a view mode.
-    this.state = { edit: false };
-
-    this.onToggleMode = this.onToggleMode.bind(this);
-  }
+  // Start the page in a view mode.
+  state = {edit: false };
 
   componentDidMount() {
     this.props.getRepos(null);
   }
 
   // Toggle between edit and view mode.
-  onToggleMode() {
-    this.setState({ edit: !this.state.edit });
+  onToggleMode = () => {
+    this.setState({edit: !this.state.edit });
   }
 
   render() {
-    const { bank, account } = this.props;
+    const {root, account} = this.props;
+
+    console.log(root, account);
 
     let content;
-    if (!bank.loading) {
-      if (bank.repos) {
+    if (!root.loading) {
+      if (root.repos) {
         if (!this.state.edit) {
           content = (
             <Projects
-            bank={bank}
+            root={root}
               onToggleMode={this.onToggleMode}
             />
           );
         } else {
           content = (
             <EditRepos
-              bank={bank}
+              root={root}
               onToggleMode={this.onToggleMode}
             />
           );
@@ -57,7 +53,7 @@ class ReposPage extends Component {
     return (
       <div>
         <Notify />
-        <Header account={account} bank={bank} />
+        <Header account={account} root={root} />
 
         <div id="page">
           <div id="content" className="wrap">{content}</div>
@@ -70,16 +66,16 @@ class ReposPage extends Component {
 }
 
 const mapState = state => {
-  const { account, bank } = state;
+  const {account, root} = state;
 
   return {
     account,
-    bank
+    root
   };
 };
 
 const mapDispatch = dispatch => ({
-  getRepos: dispatch.bank.getAll
+  getRepos: dispatch.root.getAll
 });
 
 export default connect(mapState, mapDispatch)(ReposPage);

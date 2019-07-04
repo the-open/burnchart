@@ -2,32 +2,42 @@ import moment from 'moment';
 import _ from 'lodash';
 
 // Progress in %.
-let progress = (a, b) => {
+const progress = (a, b) => {
   if (a + b === 0) {
     return 0;
-  } else {
-    return 100 * (a / (b + a));
   }
+  return 100 * (a / (b + a));
 };
 
 // Calculate the stats for a project.
 //  Is it on time? What is the progress?
-export default (project) => {
+export default project => {
   // Makes testing easier...
   if (project.stats != null) return project.stats;
 
   let points = 0, a, b, c, time, days, span;
 
   let stats = {
-    'isDone': false,
-    'isOnTime': true,
-    'isOverdue': false,
-    'isEmpty': true
+    isDone: false,
+    isOnTime: true,
+    isOverdue: false,
+    isEmpty: true
   };
 
   // Progress in points.
-  let i = project.issues.closed.size,
-      j = project.issues.open.size;
+  const {
+    project: {
+      issues: {
+        closed: {
+          size: i
+        },
+        open: {
+          size: j
+        }
+      }
+    }
+  }
+
   if (i) {
     stats.isEmpty = false;
     if (i + j > 0) {
@@ -38,9 +48,9 @@ export default (project) => {
 
   // Check that project hasn't been created after issue close; #100.
   if (project.issues.closed.size) {
-    project.createdAt = _.reduce(project.issues.closed.list
-    , (x, { closedAt }) => (x > closedAt) ? closedAt : x
-    , project.createdAt);
+    project.createdAt = project.issues.closed.list.reduce((x, {closedAt}) => {
+      return (x > closedAt) ? closedAt : x
+    }, project.createdAt);
   }
 
   // The dates in this project.
@@ -52,7 +62,7 @@ export default (project) => {
   if (!(project.closedAt != null)) {
     // The number of days from start to now.
     span = b.diff(a, 'days');
-    return _.extend(stats, { span, 'progress': { points } });
+    return _.extend(stats, {span, 'progress': {points } });
   }
 
   // Overdue? Regardless of the date, if we have closed all
@@ -71,5 +81,5 @@ export default (project) => {
   // If we have closed all issues, we are "on time".
   stats.isOnTime = stats.isDone || points > time;
 
-  return _.extend(stats, { days, span, 'progress': { points, time } });
+  return _.extend(stats, {days, span, 'progress': {points, time } });
 };

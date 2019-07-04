@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { connect } from "react-redux";
+import React, {Component} from 'react';
+import {connect} from "react-redux";
 
 import Notify from '../components/Notify';
 import Header from '../components/Header';
@@ -9,18 +9,18 @@ import AddRepoForm from '../components/AddRepoForm';
 class AddRepoPage extends Component {
 
   render() {
-    const { account, bank } = this.props;
+    const {account, root} = this.props;
 
     return (
       <div>
         <Notify />
-        <Header account={account} bank={bank} />
+        <Header account={account} root={root} />
 
         <div id="page">
           <div id="content" className="wrap">
             <AddRepoForm
               user={account.user}
-              suggestions={bank.suggestions}
+              suggestions={root.suggestions}
             />
           </div>
         </div>
@@ -32,12 +32,12 @@ class AddRepoPage extends Component {
 }
 
 const mapState = state => {
-  const { account, bank } = state;
+  const {account, root} = state;
 
   return {
     account,
-    bank
+    root
   };
 };
 
-export default connect(mapState, null)(AddRepoPage);
+export default connect(mapState)(AddRepoPage);

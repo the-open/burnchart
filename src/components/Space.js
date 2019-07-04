@@ -1,5 +1,5 @@
 import React from "react";
 
-const Space = props => <span>&nbsp;</span>;
+const Space = () => <span>&nbsp;</span>;
 
 export default Space;

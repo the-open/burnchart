@@ -1,34 +1,28 @@
-import React, { Component } from 'react';
-import { connect } from "react-redux";
+import React, {Component} from 'react';
+import {connect} from "react-redux";
 
 import Icon from './Icon';
 
 class Notify extends Component {
 
-  constructor() {
-    super();
-
-    this.state = {
-      // No text.
-      text: null,
-      // Grey style.
-      type: '',
-      // Top notification.
-      system: false,
-      // Just announcing.
-      icon: 'megaphone'
-    };
-
-    this.onClose = this.onClose.bind(this);
+  state = {
+    // No text.
+    text: null,
+    // Grey style.
+    type: '',
+    // Top notification.
+    system: false,
+    // Just announcing.
+    icon: 'megaphone'
   }
 
   // Close notification.
-  onClose() {
+  onClose = () => {
     //this.props.closeNotification();
   }
 
   render() {
-    const { text, system, type, icon } = this.state;
+    const {text, system, type, icon} = this.state;
 
     // No text = no message.
     if (!text) return false;
@@ -77,4 +71,4 @@ class NotifyWrapper extends Component {
 //   closeNotification: dispatch.repos.closeNotification
 // });
 
-export default connect(null, null)(NotifyWrapper);
+export default connect()(NotifyWrapper);

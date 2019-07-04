@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import moment from 'moment';
 import d3 from 'd3';
 import d3Tip from 'd3-tip';
@@ -15,7 +15,7 @@ class Chart extends Component {
   }
 
   componentDidMount() {
-    const { data } = this.props;
+    const {data} = this.props;
 
     // Skip charts that have nothing to show.
     if (data.stats.isEmpty) return;
@@ -44,9 +44,9 @@ class Chart extends Component {
     const trend = lines.trend(actual, data.createdAt, data.closedAt);
 
     // Get available space.
-    let { height, width } = this.refs.el.getBoundingClientRect();
+    let {height, width} = this.refs.el.getBoundingClientRect();
 
-    const margin = { top: 30, right: 30, bottom: 40, left: 50 };
+    const margin = {top: 30, right: 30, bottom: 40, left: 50 };
     width -= margin.left + margin.right;
     height -= margin.top + margin.bottom;
 
@@ -133,7 +133,7 @@ class Chart extends Component {
 
     // Collect the tooltip here.
     const tooltip = d3.tip().attr('class', 'd3-tip')
-      .html(({ number, title }) => `#${number}: ${title}`);
+      .html(({number, title }) => `#${number}: ${title}`);
 
     svg.call(tooltip);
 
@@ -143,12 +143,12 @@ class Chart extends Component {
       .enter()
       // A wrapping link.
       .append('svg:a')
-      .attr("xlink:href", ({ html_url }) => html_url )
+      .attr("xlink:href", ({html_url }) => html_url )
       .attr("xlink:show", 'new')
       .append('svg:circle')
-      .attr("cx", ({ date }) => x(new Date(date)))
-      .attr("cy", ({ points }) => y(points))
-      .attr("r", ({ radius }) => 5)
+      .attr("cx", ({date }) => x(new Date(date)))
+      .attr("cy", ({points }) => y(points))
+      .attr("r", ({radius }) => 5)
       .on('mouseover', function(d, i) {
         tooltip.show(d, this);
       })

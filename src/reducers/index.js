@@ -1,9 +1,9 @@
 import account from "./account";
-import bank from "./bank";
+import root from "./root";
 import router from "./router";
 
 export default {
   account,
-  bank,
+  root,
   router
 };

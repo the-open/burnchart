@@ -1,15 +1,15 @@
-import React, { Component } from 'react';
-import { connect } from "react-redux";
+import React, {Component} from 'react';
+import {connect} from "react-redux";
 
 import Icon from './Icon';
 
 class Hero extends Component {
 
   render() {
-    const { navigate } = this.props;
+    const {navigate} = this.props;
 
     return (
-      <div id="hero" style={{ backgroundImage: `url('${process.env.PUBLIC_URL}/img/highway.jpg')` }}>
+      <div id="hero" style={{backgroundImage: `url('${process.env.PUBLIC_URL}/img/highway.jpg')` }}>
         <div className="content">
           <Icon name="direction" />
           <h2>See your repo progress</h2>
@@ -30,7 +30,7 @@ class Hero extends Component {
 }
 
 const mapDispatch = dispatch => ({
-  demo: dispatch.bank.demo
+  demo: dispatch.root.demo
 });
 
 export default connect(null, mapDispatch)(Hero);

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import config from '../../config';
+import config from 'src/config';
 
 // Convert project boards issues into our internal format.
 export default {
@@ -40,7 +40,7 @@ const calcSize = list => {
     case 'LABELS':
       size = 0;
       list = _.filter(list, issue => {
-        const { labels } = issue;
+        const {labels} = issue;
         // Skip if no labels exist.
         if (!labels) return false;
 
@@ -65,5 +65,5 @@ const calcSize = list => {
   }
 
   // Sync return.
-  return { list, size };
+  return {list, size };
 };

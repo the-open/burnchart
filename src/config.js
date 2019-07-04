@@ -37,5 +37,12 @@ export default {
     timeout: 1e4
   },
   // The app theme; 'monza' is the default red theme.
-  theme: "monza"
+  theme: "monza",
+  // Demonstration repos.
+  demo: [
+    {owner: 'd3', name: 'd3' },
+    {owner: 'radekstepan', name: 'disposable' },
+    {owner: 'rails', name: 'rails' },
+    {owner: 'twbs', name: 'bootstrap' }
+  ]
 };

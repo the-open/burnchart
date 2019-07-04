@@ -31,7 +31,7 @@ const Icon = props => {
     return (
       <span
         className={`icon ${props.name}`}
-        dangerouslySetInnerHTML={{ '__html': `&#${code};` }}
+        dangerouslySetInnerHTML={{'__html': `&#${code};` }}
       />
     );
   }

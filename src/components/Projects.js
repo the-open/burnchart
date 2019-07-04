@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { connect } from "react-redux";
+import React, {Component} from 'react';
+import {connect} from "react-redux";
 import cls from 'classnames';
 
 import format from '../modules/format.js';
@@ -8,25 +8,18 @@ import Icon from './Icon';
 
 class Projects extends Component {
 
-  constructor() {
-    super();
-
-    this.onSort = this.onSort.bind(this);
-    this.onRefresh = this.onRefresh.bind(this);
-  }
-
   // Cycle through projects sort order.
-  onSort() {
+  onSort = () => {
     this.props.sortRepos();
   }
 
-  onRefresh() {
+  onRefresh = () => {
     this.props.getRepos(null);
   }
 
   render() {
-    const { repo, navigate } = this.props;
-    const { repos, projects, index, sortBy } = this.props.bank;
+    const {repo, navigate} = this.props;
+    const {repos, projects, index, sortBy} = this.props.root;
     const entries = Object.entries(repos);
 
     // Show the repos with errors first.
@@ -49,7 +42,7 @@ class Projects extends Component {
     ).map(([rI, pI]) => projects[pI]
     ).map(project =>
       (
-        <tr className={cls({ done: project.stats.isDone })} key={project.key}>
+        <tr className={cls({done: project.stats.isDone })} key={project.key}>
           <td>
             <div
               onClick={() => navigate(`/${project.repo.owner}/${project.repo.name}`)}
@@ -66,16 +59,16 @@ class Projects extends Component {
               {project.name}
             </div>
           </td>
-          <td style={{ width: '1%' }}>
+          <td style={{width: '1%' }}>
             <div className="progress">
               <span className="percent">{Math.floor(project.stats.progress.points)}%</span>
-              <span className={cls('due', { red: project.stats.isOverdue })}>
+              <span className={cls('due', {red: project.stats.isOverdue })}>
                 {format.due(project.closedAt)}
               </span>
               <div className="outer bar">
                 <div
-                  className={cls('inner', 'bar', { green: project.stats.isOnTime, 'red': !project.stats.isOnTime })}
-                  style={{ width: `${project.stats.progress.points}%` }}
+                  className={cls('inner', 'bar', {green: project.stats.isOnTime, 'red': !project.stats.isOnTime })}
+                  style={{width: `${project.stats.progress.points}%` }}
                 />
               </div>
             </div>
@@ -126,8 +119,8 @@ class Projects extends Component {
 }
 
 const mapDispatch = dispatch => ({
-  sortRepos: dispatch.bank.sortRepos,
-  getRepos: dispatch.bank.getAll,
+  sortRepos: dispatch.root.sortRepos,
+  getRepos: dispatch.root.getAll,
   navigate: dispatch.router.navigate
 });
 

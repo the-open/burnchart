@@ -8,6 +8,13 @@ GitHub Burndown Chart as a Service. Answers the question "are my projects on tra
 
 ![image](https://raw.githubusercontent.com/radekstepan/burnchart/master/screenshots.jpg)
 
+## TODO
+
+- [ ] Convert all tests to be inline with code and make them pass
+- [ ] Rename bank to main store or something
+- [ ] Display the chart again
+- [ ] Start & due dates ala https://www.zenhub.com/product
+
 ## Features
 
 1. Running from the **browser**, apart from GitHub account sign in which uses Firebase backend.

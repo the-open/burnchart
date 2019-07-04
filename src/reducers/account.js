@@ -1,4 +1,5 @@
 import lscache from 'lscache';
+import produce from 'immer';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 
@@ -8,10 +9,10 @@ import config from '../config';
 const client = firebase.initializeApp(config.firebase);
 
 const account = {
-  state: { ready: false, user: {} },
+  state: {ready: false, user: {} },
   reducers: {
     save(state, user) {
-      return Object.assign({}, state, { user, ready: true });
+      return {...state, {user, ready: true};
     }
   },
   effects: {
@@ -35,7 +36,7 @@ const account = {
       provider.addScope('repo');
 
       const res = await client.auth().signInWithPopup(provider);
-      const { accessToken } = res.credential;
+      const {accessToken} = res.credential;
       lscache.set('accessToken', accessToken);
       return this.save({
         accessToken,

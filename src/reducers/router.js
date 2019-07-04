@@ -32,13 +32,13 @@ const resolve = pathname => {
 };
 
 const router = {
-  state: { route: '' },
+  state: {route: '' },
   reducers: {
     route(state, pathname) {
       // TODO: clear any existing notifications
       const [route, params, title] = resolve(pathname);
       document.title = title ? [ROOT_TITLE, title].join(' - ') : ROOT_TITLE;
-      return Object.assign({}, state, { route, params });
+      return {...state, {route, params});
     }
   },
   effects: {
