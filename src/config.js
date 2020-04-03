@@ -1,8 +1,8 @@
 export default {
   // Firebase.
   "firebase": {
-    apiKey: "AIzaSyD_kfzkAPA87PoRFIZa8JEzZkT66CqUDpU",
-    authDomain: "burnchart.firebaseapp.com"
+    apiKey: "AIzaSyBfFsB9Pi29A6FG3jEnTznC0gbbgwwlH3I",
+    authDomain: "open-burnchart.firebaseapp.com"
   },
   // Data source provider.
   "provider": "github",
