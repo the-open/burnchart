@@ -38,6 +38,8 @@ minify-js:
 minify-css:
 	${CLEANCSS} public/css/bundle.css > public/css/bundle.min.css
 
+minify: minify-js minify-css
+
 test:
 	${MOCHA} ${MOCHA-OPTS} --reporter spec
 
