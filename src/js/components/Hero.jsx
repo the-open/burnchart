@@ -30,9 +30,6 @@ export default class Hero extends React.Component {
             <Link route={{ to: 'addProject' }} className="primary">
               <Icon name="plus" /> Add a Project
             </Link>
-            <Link route={{ to: 'demo' }} className="secondary">
-              <Icon name="computer" /> See Examples
-            </Link>
           </div>
         </div>
       </div>

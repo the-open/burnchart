@@ -72,11 +72,6 @@ export default class Header extends React.Component {
                 <Icon name="plus" /> Add a Project
               </Link>
             </li>
-            <li>
-              <Link route={{ 'to': 'demo' }}>
-                <Icon name="computer" /> See Examples
-              </Link>
-            </li>
           </ul>
         </div>
       </div>
